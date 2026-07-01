@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rturox Tech - Office Portal</title>
+    
+    <!-- Google Fonts for premium look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="topbar no-print">
+        <div class="logo-area">
+            <div class="logo-icon"><img src="logo.png" alt="Rturox Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>
+            <div class="logo-text">
+                <h1>Rturox Tech</h1>
+                <span>Office Portal & Document Generator</span>
+            </div>
+        </div>
+        
+        <!-- QUICK CONFIG OR BACKUP -->
+        <div class="topbar-actions">
+            <button class="btn btn-secondary btn-sm" onclick="downloadBackup()" title="Download SQLite DB Backup"><i class="fa-solid fa-download"></i> Backup DB</button>
+            <button class="btn btn-secondary btn-sm" onclick="triggerRestoreUpload()" title="Upload SQLite DB Backup"><i class="fa-solid fa-upload"></i> Restore DB</button>
+            <input type="file" id="restore-file-input" style="display: none;" accept=".sqlite,.json" onchange="handleRestoreUpload(event)">
+            <button class="btn btn-danger btn-sm" onclick="logoutAdmin()" title="Logout from Portal" style="margin-left: 10px; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger);"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- DASHBOARD VIEW -->
+        <section id="dashboard-view" class="no-print">
+            
+            <!-- Welcome Header -->
+            <div class="dashboard-header">
+                <h2>Welcome back!</h2>
+                <p>Select a module below to generate documents, or view the history of saved transactions.</p>
+            </div>
+            
+            <!-- Statistics Panel -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon icon-blue"><i class="fa-solid fa-file-invoice"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Documents</span>
+                        <h3 id="stat-total-docs">0</h3>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Total Invoiced</span>
+                        <h3 id="stat-total-invoiced">₹ 0.00</h3>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon icon-yellow"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                    <div class="stat-info">
+                        <span class="stat-label">Transactions Today</span>
+                        <h3 id="stat-today-docs">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Chart Section -->
+            <div class="analytics-section">
+                <div class="analytics-header">
+                    <div class="analytics-title-group">
+                        <h3><i class="fa-solid fa-chart-column"></i> Activity Overview</h3>
+                        <span class="analytics-subtitle">Monthly document count &amp; invoice revenue (last 6 months)</span>
+                    </div>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-dot legend-docs"></span>Documents</span>
+                        <span class="legend-item"><span class="legend-dot legend-revenue"></span>Invoice Revenue</span>
+                    </div>
+                </div>
+                <div class="analytics-chart-wrap">
+                    <canvas id="analytics-chart"></canvas>
+                    <div id="analytics-empty" class="analytics-empty" style="display:none;">
+                        <i class="fa-solid fa-chart-simple"></i>
+                        <p>No data yet — create some documents to see analytics.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modules Grid -->
+            <div class="section-title">
+                <h3>Document Modules</h3>
+                <span class="divider"></span>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="card card-quotation" onclick="openModule('quotation')" id="card-quotation">
+                    <div class="card-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                    <h3>Project Proposal / Quote</h3>
+                    <p>Create project proposals, custom specs & cost estimates</p>
+                </div>
+                <div class="card card-invoice" onclick="openModule('invoice')" id="card-invoice">
+                    <div class="card-icon"><i class="fa-solid fa-receipt"></i></div>
+                    <h3>Billing Invoice</h3>
+                    <p>Generate professional 18% GST tax invoices for tech services</p>
+                </div>
+                <div class="card card-receipt" onclick="openModule('receipt')" id="card-receipt">
+                    <div class="card-icon"><i class="fa-solid fa-file-signature"></i></div>
+                    <h3>Receipt Slip</h3>
+                    <p>Print client payment receipts for tech project milestones</p>
+                </div>
+                <div class="card card-voucher" onclick="openModule('voucher')" id="card-voucher">
+                    <div class="card-icon"><i class="fa-solid fa-cash-register"></i></div>
+                    <h3>Cash Voucher</h3>
+                    <p>Log and print office petty cash voucher receipts</p>
+                </div>
+                <div class="card card-labour" onclick="openModule('labour')" id="card-labour">
+                    <div class="card-icon"><i class="fa-solid fa-laptop-code"></i></div>
+                    <h3>Developer Contract</h3>
+                    <p>Draft contract agreements for developers & designers</p>
+                </div>
+                <div class="card card-handover" onclick="openModule('handover')" id="card-handover">
+                    <div class="card-icon"><i class="fa-solid fa-circle-check"></i></div>
+                    <h3>Project Handover</h3>
+                    <p>Issue formal software deployment & sign-off handovers</p>
+                </div>
+                <div class="card card-expense" onclick="openModule('expense')" id="card-expense">
+                    <div class="card-icon"><i class="fa-solid fa-credit-card"></i></div>
+                    <h3>Office Expense</h3>
+                    <p>Track server hosting, SaaS tools, and team expense claims</p>
+                </div>
+                <div class="card card-letterpad" onclick="openModule('letterpad')" id="card-letterpad">
+                    <div class="card-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+                    <h3>Letter Pad</h3>
+                    <p>Write official letters on company letterhead</p>
+                </div>
+            </div>
+            
+            <!-- Document History Table -->
+            <div class="history-section">
+                <div class="history-header">
+                    <div class="title-wrap">
+                        <h3>Saved Document Registry</h3>
+                        <p>Search, review, reload, or delete previously created documents</p>
+                    </div>
+                    <div class="filter-controls">
+                        <div class="search-input-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="history-search" placeholder="Search Client / Doc No..." oninput="filterHistoryTable()">
+                        </div>
+                        <select id="history-filter" onchange="filterHistoryTable()">
+                            <option value="all">All Modules</option>
+                            <option value="quotation">Project Proposal / Quote</option>
+                            <option value="invoice">Billing Invoice</option>
+                            <option value="receipt">Receipt Slip</option>
+                            <option value="voucher">Cash Voucher</option>
+                            <option value="labour">Developer Contract</option>
+                            <option value="handover">Project Handover</option>
+                            <option value="expense">Office Expense</option>
+                            <option value="letterpad">Letter Pad</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="history-table-container">
+                    <table class="history-table" id="registry-table">
+                        <thead>
+                            <tr>
+                                <th width="15%">Document Type</th>
+                                <th width="15%">Document No</th>
+                                <th width="30%">Client / Payee Name</th>
+                                <th width="15%">Doc Date</th>
+                                <th width="10%">Created</th>
+                                <th width="15%" class="text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <tr>
+                                <td colspan="6" class="text-center empty-history">
+                                    <i class="fa-solid fa-folder-open"></i> Loading records...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </section>
+
+        <!-- MODULE WORKSPACE VIEW -->
+        <section id="module-container" class="module-view">
+            
+            <!-- Workspace Toolbar -->
+            <div class="toolbar no-print">
+                <button class="btn btn-secondary" onclick="showDashboard()"><i class="fa-solid fa-arrow-left"></i> Dashboard</button>
+                <div class="module-info-title">
+                    <span id="module-icon-indicator"><i class="fa-solid fa-file-invoice"></i></span>
+                    <h2 id="module-title" style="margin: 0;">Module Name</h2>
+                </div>
+                <div class="toolbar-actions">
+                    <button class="btn btn-success" onclick="saveDocumentData()" id="btn-save-doc"><i class="fa-solid fa-floppy-disk"></i> Save Document</button>
+                    <button class="btn btn-primary" onclick="triggerPrint()"><i class="fa-solid fa-print"></i> Print / Save PDF</button>
+                </div>
+            </div>
+
+            <!-- Double Panel Workspace Layout -->
+            <div class="workspace">
+                <!-- Inputs Editor Form Panel (Left) -->
+                <div class="form-section no-print" id="dynamic-form">
+                    <!-- JS will render module inputs here -->
+                </div>
+                
+                <!-- Live Paper Preview Panel (Right) -->
+                <div class="preview-section" id="preview-wrapper">
+                    <!-- Paper sheet will render here -->
+                </div>
+            </div>
+            
+        </section>
+
+    </main>
+
+    <!-- RESTORE DATABASE MODAL -->
+    <div id="restore-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-upload"></i> Restore Portal Database</h3>
+                <button class="close-btn" onclick="closeRestoreModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Upload a previously downloaded database backup file (`.sqlite` or `.json`) to restore all documents and numbering states.</p>
+                <div class="warning-alert">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span><strong>WARNING:</strong> This will overwrite all current portal data! Make sure you backup your current database first.</span>
+                </div>
+                
+                <form id="restore-form" enctype="multipart/form-data">
+                    <div class="file-upload-box">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <input type="file" id="backup-file-input" name="backup_file" accept=".sqlite,.json" required>
+                        <div class="file-details" id="upload-details">Drag file here or click to browse</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeRestoreModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="submitRestore()">Upload & Restore</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast-notification no-print">
+        <div class="toast-content">
+            <span class="toast-icon" id="toast-icon"><i class="fa-solid fa-circle-check"></i></span>
+            <span class="toast-message" id="toast-message">Message placeholder</span>
+        </div>
+    </div>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="login-overlay no-print" style="display: none;">
+        <div class="login-card">
+            <div class="login-logo-wrap">
+                <img src="logo.png" alt="Rturox Logo">
+            </div>
+            <h2>Rturox Tech CRM</h2>
+            <p>Enter administrator credentials to unlock</p>
+            <div id="login-error-msg" class="login-error-msg" style="display: none;"></div>
+            <form id="login-form" onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="login-username" required placeholder="admin" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn btn-primary login-btn">Login to Portal</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
