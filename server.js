@@ -3,15 +3,25 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Setup upload directory for restorations
-const uploadDir = path.join(__dirname, 'data', 'temp_uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+// On Vercel (and other serverless platforms) the filesystem is read-only
+// except for /tmp. Use os.tmpdir() for any writable directories.
+const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const uploadDir = IS_SERVERLESS
+    ? path.join(os.tmpdir(), 'rturox_temp_uploads')
+    : path.join(__dirname, 'data', 'temp_uploads');
+
+try {
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+} catch (e) {
+    console.warn('Could not create uploadDir:', uploadDir, e.message);
 }
 const upload = multer({ dest: uploadDir });
 
@@ -36,7 +46,7 @@ app.post('/api/login', (req, res) => {
     if (username === ADMIN_USER && password === ADMIN_PASSWORD) {
         return res.json({ success: true, token: TOKEN_SECRET });
     }
-    res.status(401).json({ success: false, error: 'Fuck YOU' });
+    res.status(401).json({ success: false, error: 'Invalid credentials.' });
 });
 
 // Authentication middleware for subsequent API routes

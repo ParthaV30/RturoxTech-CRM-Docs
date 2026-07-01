@@ -1,9 +1,19 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
-const DB_DIR = path.join(__dirname, 'data');
-if (!fs.existsSync(DB_DIR)) {
-    fs.mkdirSync(DB_DIR, { recursive: true });
+// On Vercel/serverless, /var/task is read-only — use /tmp for all writable paths
+const IS_SERVERLESS = !!(process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME);
+const DB_DIR = IS_SERVERLESS
+    ? path.join(os.tmpdir(), 'rturox_data')
+    : path.join(__dirname, 'data');
+
+try {
+    if (!fs.existsSync(DB_DIR)) {
+        fs.mkdirSync(DB_DIR, { recursive: true });
+    }
+} catch (e) {
+    console.warn('Could not create DB_DIR:', DB_DIR, e.message);
 }
 
 const SQLITE_PATH = path.join(DB_DIR, 'database.sqlite');

@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Local database files (should not be committed)
+data/
+
+# Log files
+*.log
+server.log
+server_error.log
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
