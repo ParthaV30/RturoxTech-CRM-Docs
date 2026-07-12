@@ -1,7 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const DB_DIR = path.join(__dirname, 'data');
+const isVercel = process.env.VERCEL || process.env.NOW_BUILDER;
+const DB_DIR = isVercel ? '/tmp' : path.join(__dirname, 'data');
 if (!fs.existsSync(DB_DIR)) {
     fs.mkdirSync(DB_DIR, { recursive: true });
 }

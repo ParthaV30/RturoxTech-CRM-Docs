@@ -9,7 +9,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Setup upload directory for restorations
-const uploadDir = path.join(__dirname, 'data', 'temp_uploads');
+const isVercel = process.env.VERCEL || process.env.NOW_BUILDER;
+const uploadDir = isVercel ? '/tmp/temp_uploads' : path.join(__dirname, 'data', 'temp_uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -23,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Setup upload directory for bills
-const billUploadDir = path.join(__dirname, 'data', 'bill_uploads');
+const billUploadDir = isVercel ? '/tmp/bill_uploads' : path.join(__dirname, 'data', 'bill_uploads');
 if (!fs.existsSync(billUploadDir)) {
     fs.mkdirSync(billUploadDir, { recursive: true });
 }
