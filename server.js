@@ -63,7 +63,6 @@ const USER_CREDENTIALS = [
 ];
 
 // Unprotected Login endpoint
-// Unprotected Login endpoint
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     
@@ -75,19 +74,19 @@ app.post('/api/login', async (req, res) => {
             const mockToken = `rturox-session-${user.role.replace(/\s+/g, '').toLowerCase()}-${user.username}`;
             return res.json({ success: true, token: mockToken, role: user.role, username: user.username });
         }
-        
-        // Fallback hardcoded USER_CREDENTIALS array check
-        const hardcodedUser = USER_CREDENTIALS.find(u => u.username === username && u.password === password);
-        if (hardcodedUser) {
-            return res.json({ success: true, token: hardcodedUser.token, role: hardcodedUser.role, username: hardcodedUser.username });
-        }
-        
-        // Fallback original credentials from environment variables
-        if (username === ADMIN_USER && password === ADMIN_PASSWORD) {
-            return res.json({ success: true, token: 'rturox-session-superadmin-admin', role: ROLES.SUPERADMIN, username: 'admin' });
-        }
     } catch (e) {
-        console.error('Login error:', e);
+        console.error('Login database query error, using fallbacks:', e);
+    }
+    
+    // Fallback hardcoded USER_CREDENTIALS array check
+    const hardcodedUser = USER_CREDENTIALS.find(u => u.username === username && u.password === password);
+    if (hardcodedUser) {
+        return res.json({ success: true, token: hardcodedUser.token, role: hardcodedUser.role, username: hardcodedUser.username });
+    }
+    
+    // Fallback original credentials from environment variables
+    if (username === ADMIN_USER && password === ADMIN_PASSWORD) {
+        return res.json({ success: true, token: 'rturox-session-superadmin-admin', role: ROLES.SUPERADMIN, username: 'admin' });
     }
     
     res.status(401).json({ success: false, error: 'Invalid credentials' });
@@ -658,3 +657,5 @@ db.init().then(() => {
     console.error('Failed to initialize database. Server cannot start.', err);
     process.exit(1);
 });
+
+module.exports = app;
