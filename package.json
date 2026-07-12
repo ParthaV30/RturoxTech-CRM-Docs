@@ -1,7 +1,7 @@
 {
-  "name": "rturox-crm",
+  "name": "orbenyx-crm",
   "version": "1.0.0",
-  "description": "Office Portal for Rturox Tech",
+  "description": "Office Portal for Orbenyx",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

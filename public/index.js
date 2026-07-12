@@ -3,7 +3,7 @@
 // ==========================================================================
 
 const companyData = {
-    name: "Rturox Tech",
+    name: "Orbenyx",
     address1: "Vadavalli",
     address2: "Coimbatore, Tamil Nadu – 641046",
     mobile: "+91 63811 69124",
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function checkAdminAuth() {
     const token = localStorage.getItem('rturox_admin_token');
     const overlay = document.getElementById('login-overlay');
-    
+
     if (!token) {
         overlay.style.display = 'flex';
         document.getElementById('login-username').focus();
@@ -46,9 +46,9 @@ async function handleAdminLogin(e) {
     const user = document.getElementById('login-username').value;
     const pass = document.getElementById('login-password').value;
     const errorMsg = document.getElementById('login-error-msg');
-    
+
     errorMsg.style.display = 'none';
-    
+
     try {
         const res = await fetch('/api/login', {
             method: 'POST',
@@ -72,6 +72,11 @@ async function handleAdminLogin(e) {
 
 function logoutAdmin() {
     localStorage.removeItem('rturox_admin_token');
+    const sidebar = document.getElementById('portal-sidebar');
+    if (sidebar) sidebar.style.display = 'none';
+    if (window.resetExpensesPortalInit) {
+        window.resetExpensesPortalInit();
+    }
     checkAdminAuth();
     showToast('Logged out successfully.', 'info');
 }
@@ -99,7 +104,7 @@ async function loadPortalData() {
     try {
         const response = await apiFetch('/api/documents?_t=' + Date.now());
         const data = await response.json();
-        
+
         if (data.success) {
             savedDocumentsList = data.documents;
             renderStats(data.documents);
@@ -108,7 +113,7 @@ async function loadPortalData() {
         } else {
             showToast('Failed to load documents registry.', 'error');
         }
-        
+
         // Detect database status badge
         const badge = document.getElementById('db-status-badge');
         if (badge) {
@@ -133,12 +138,16 @@ async function loadPortalData() {
         console.error('Error loading initial portal data:', err);
         showToast('Server connection failed.', 'error');
     }
+    
+    if (window.initializeExpensesPortal) {
+        window.initializeExpensesPortal();
+    }
 }
 
 // Render dynamic stat indicators on dashboard
 function renderStats(docs) {
     document.getElementById('stat-total-docs').innerText = docs.length;
-     let totalInvoicedSum = 0;
+    let totalInvoicedSum = 0;
     let todayDocsCount = 0;
     const todayStr = new Date().toISOString().split('T')[0];
 
@@ -147,7 +156,7 @@ function renderStats(docs) {
         if (doc.date === todayStr || (doc.created_at && doc.created_at.startsWith(todayStr))) {
             todayDocsCount++;
         }
-        
+
         // Sum invoices if data is present
         if (doc.doc_type === 'invoice' && doc.data) {
             try {
@@ -167,7 +176,7 @@ function renderStats(docs) {
         }
     });
 
-    document.getElementById('stat-total-invoiced').innerText = `₹ ${totalInvoicedSum.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    document.getElementById('stat-total-invoiced').innerText = `₹ ${totalInvoicedSum.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     document.getElementById('stat-today-docs').innerText = todayDocsCount;
 }
 
@@ -207,7 +216,7 @@ function renderAnalyticsChart(docs) {
                 let sub = 0;
                 if (payload.items) payload.items.forEach(r => { sub += (parseFloat(r.qty) || 0) * (parseFloat(r.rate) || 0); });
                 bucket.revenue += sub * 1.18;
-            } catch (e) {}
+            } catch (e) { }
         }
     });
 
@@ -280,8 +289,8 @@ function renderAnalyticsChart(docs) {
         const y = PAD_T + chartH - (chartH * i / gridLines);
         const revVal = maxRev * i / gridLines;
         const label = revVal >= 100000 ? `${(revVal / 100000).toFixed(1)}L`
-                    : revVal >= 1000 ? `${(revVal / 1000).toFixed(0)}k`
-                    : Math.round(revVal).toString();
+            : revVal >= 1000 ? `${(revVal / 1000).toFixed(0)}k`
+                : Math.round(revVal).toString();
         ctx.fillStyle = COL_TEXT;
         ctx.textAlign = 'left';
         ctx.fillText(label, PAD_L + chartW + 5, y + 4);
@@ -394,9 +403,9 @@ function renderAnalyticsChart(docs) {
 
         if (hit) {
             const m = hit.month;
-            const revFmt = m.revenue >= 100000 ? `₹${(m.revenue/100000).toFixed(2)}L`
-                         : m.revenue >= 1000 ? `₹${(m.revenue/1000).toFixed(1)}k`
-                         : `₹${Math.round(m.revenue).toLocaleString('en-IN')}`;
+            const revFmt = m.revenue >= 100000 ? `₹${(m.revenue / 100000).toFixed(2)}L`
+                : m.revenue >= 1000 ? `₹${(m.revenue / 1000).toFixed(1)}k`
+                    : `₹${Math.round(m.revenue).toLocaleString('en-IN')}`;
             tooltipEl.innerHTML = `
                 <div class="chart-tooltip-month">${m.label}</div>
                 <div class="chart-tooltip-row"><span class="chart-tooltip-dot" style="background:#a855f7"></span><span>${m.docs} document${m.docs !== 1 ? 's' : ''}</span></div>
@@ -419,7 +428,7 @@ function renderAnalyticsChart(docs) {
 function renderHistoryTable(docs) {
     const tbody = document.getElementById('history-tbody');
     tbody.innerHTML = '';
-    
+
     if (docs.length === 0) {
         tbody.innerHTML = `
             <tr>
@@ -430,11 +439,11 @@ function renderHistoryTable(docs) {
         `;
         return;
     }
-    
+
     docs.forEach(doc => {
         const docDate = doc.date ? doc.date.split('-').reverse().join('/') : 'N/A';
         const createdDate = doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-IN') : 'N/A';
-        
+
         const typeLabels = {
             quotation: 'Project Proposal / Quote',
             invoice: 'Billing Invoice',
@@ -445,7 +454,7 @@ function renderHistoryTable(docs) {
             expense: 'Office Expense',
             letterpad: 'Letter Pad'
         };
-        
+
         tbody.innerHTML += `
             <tr data-type="${doc.doc_type}">
                 <td><span class="history-doc-badge badge-${doc.doc_type}">${typeLabels[doc.doc_type]}</span></td>
@@ -469,18 +478,18 @@ function renderHistoryTable(docs) {
 function filterHistoryTable() {
     const searchVal = document.getElementById('history-search').value.toLowerCase();
     const filterVal = document.getElementById('history-filter').value;
-    
+
     const rows = document.querySelectorAll('#history-tbody tr');
     rows.forEach(row => {
         // Skip empty row indicator
         if (row.cells.length === 1) return;
-        
+
         const type = row.getAttribute('data-type');
         const textContent = row.textContent.toLowerCase();
-        
+
         const matchesSearch = textContent.includes(searchVal);
         const matchesFilter = filterVal === 'all' || type === filterVal;
-        
+
         if (matchesSearch && matchesFilter) {
             row.style.display = '';
         } else {
@@ -515,7 +524,7 @@ async function fetchAutoNumber(docType, inputId, updateFunction) {
 // Save Document (Creates or Updates)
 async function saveDocumentData() {
     let payload = { doc_type: currentModule, doc_no: '', client_name: '', data: {} };
-    
+
     try {
         if (currentModule === 'quotation') {
             payload.doc_no = document.getElementById('quo-no').value;
@@ -634,7 +643,8 @@ async function saveDocumentData() {
             };
         } else if (currentModule === 'letterpad') {
             payload.doc_no = document.getElementById('let-no').value;
-            payload.client_name = document.getElementById('let-subject').value; // Store subject as descriptor
+            const subjectVal = document.getElementById('let-subject').value.trim();
+            payload.client_name = subjectVal || '(Letter)'; // Store subject as descriptor; fallback prevents empty field rejection
             payload.data = {
                 no: payload.doc_no,
                 date: document.getElementById('let-date').value,
@@ -645,11 +655,11 @@ async function saveDocumentData() {
                 showgst: document.getElementById('let-showgst-check').checked
             };
         }
-    } catch(err) {
+    } catch (err) {
         showToast('Please fill in the form correctly.', 'error');
         return;
     }
-    
+
     // Send to backend
     try {
         const response = await apiFetch('/api/save', {
@@ -657,7 +667,7 @@ async function saveDocumentData() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        
+
         const result = await response.json();
         if (result.success) {
             showToast('Document saved successfully!', 'success');
@@ -676,7 +686,7 @@ async function editDocument(id) {
     try {
         const response = await apiFetch(`/api/documents/${id}?_t=${Date.now()}`);
         const data = await response.json();
-        
+
         if (data.success) {
             const doc = data.document;
             openModule(doc.doc_type, doc.data);
@@ -690,23 +700,36 @@ async function editDocument(id) {
 }
 
 // Delete document from registry
-async function deleteDocument(id) {
-    if (!confirm('Are you sure you want to permanently delete this document?')) return;
-    
-    try {
-        const response = await apiFetch(`/api/documents/${id}`, {
-            method: 'DELETE'
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            showToast('Document deleted.', 'success');
-            loadPortalData();
-        } else {
-            showToast('Delete failed.', 'error');
-        }
-    } catch (err) {
-        showToast('Network error.', 'error');
+function deleteDocument(id) {
+    if (window.showConfirm) {
+        window.showConfirm(
+            'Delete Document',
+            'Are you sure you want to permanently delete this document from the registry?',
+            async () => {
+                try {
+                    const response = await apiFetch(`/api/documents/${id}`, { method: 'DELETE' });
+                    const data = await response.json();
+                    if (data.success) {
+                        showToast('Document deleted.', 'success');
+                        loadPortalData();
+                    } else {
+                        showToast('Delete failed.', 'error');
+                    }
+                } catch (err) {
+                    showToast('Network error.', 'error');
+                }
+            }
+        );
+    } else {
+        // Fallback for cases where custom modal isn't loaded yet
+        if (!confirm('Are you sure you want to permanently delete this document?')) return;
+        apiFetch(`/api/documents/${id}`, { method: 'DELETE' })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) { showToast('Document deleted.', 'success'); loadPortalData(); }
+                else showToast('Delete failed.', 'error');
+            })
+            .catch(() => showToast('Network error.', 'error'));
     }
 }
 
@@ -715,7 +738,7 @@ async function reprintDocument(id) {
     try {
         const response = await apiFetch(`/api/documents/${id}?_t=${Date.now()}`);
         const data = await response.json();
-        
+
         if (data.success) {
             const doc = data.document;
             openModule(doc.doc_type, doc.data);
@@ -756,12 +779,12 @@ function triggerRestoreUpload() {
 async function handleRestoreUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-    
+
     const formData = new FormData();
     formData.append('backup_file', file);
-    
+
     showToast('Uploading and restoring database...', 'info');
-    
+
     try {
         const response = await apiFetch('/api/restore', {
             method: 'POST',
@@ -799,13 +822,13 @@ async function submitRestore() {
         showToast('Please select a file first.', 'error');
         return;
     }
-    
+
     const formData = new FormData();
     formData.append('backup_file', fileInput.files[0]);
-    
+
     showToast('Uploading and restoring database...', 'info');
     closeRestoreModal();
-    
+
     try {
         const response = await apiFetch('/api/restore', {
             method: 'POST',
@@ -842,11 +865,11 @@ function openModule(moduleName, editData = null) {
     currentModule = moduleName;
     document.getElementById('dashboard-view').style.display = 'none';
     document.getElementById('module-container').style.display = 'flex';
-    
+
     // Set toolbar indicator styling
     const indicator = document.getElementById('module-icon-indicator');
     const title = document.getElementById('module-title');
-    
+
     const icons = {
         quotation: 'fa-file-invoice-dollar',
         invoice: 'fa-receipt',
@@ -857,7 +880,7 @@ function openModule(moduleName, editData = null) {
         expense: 'fa-credit-card',
         letterpad: 'fa-envelope-open-text'
     };
-    
+
     const titles = {
         quotation: 'Project Proposal / Quote',
         invoice: 'Billing Invoice',
@@ -868,7 +891,7 @@ function openModule(moduleName, editData = null) {
         expense: 'Office Expense',
         letterpad: 'Letter Pad'
     };
-    
+
     const colors = {
         quotation: 'var(--primary)',
         invoice: 'var(--success)',
@@ -879,14 +902,14 @@ function openModule(moduleName, editData = null) {
         expense: '#f97316',
         letterpad: '#14b8a6'
     };
-    
+
     indicator.style.background = colors[moduleName];
     indicator.innerHTML = `<i class="fa-solid ${icons[moduleName]}"></i>`;
     title.innerText = titles[moduleName];
-    
+
     // Reset preview wrapper DOM
     document.getElementById('preview-wrapper').innerHTML = '';
-    
+
     // Branch on modules forms & updates
     if (moduleName === 'quotation') {
         renderQuoteForm(editData);
@@ -920,7 +943,7 @@ function renderQuoteForm(data = null) {
         quoteRows = [{ service: 'Custom Web Application Development', desc: 'Design, frontend, backend API integration & deployment', qty: 1, rate: 45000 }];
         quoteSpecs = [{ text: 'Payment Terms: 30% advance, 40% on milestone demo, 30% on launch.' }, { text: 'Ownership: Full source code ownership transferred upon payment clearance.' }, { text: 'Deployment: Handed over on AWS/Vercel server environments.' }];
     }
-    
+
     document.getElementById('dynamic-form').innerHTML = `
         <div class="form-row">
             <div class="form-group"><label>Quotation No</label><input type="text" id="quo-no" value="${data ? data.no : 'QT-...'}" oninput="updateQuotePreview()"></div>
@@ -947,7 +970,7 @@ function renderQuoteForm(data = null) {
             <input type="checkbox" id="quo-dsign-check" ${data ? (data.dsign ? 'checked' : '') : 'checked'} onchange="updateQuotePreview()">
             <label for="quo-dsign-check">Enable Digital Signature</label>
         </div>
-        <div class="form-group"><label>Authorized Signatory Name</label><input type="text" id="quo-auth" value="${data ? data.auth : 'Rturox'}" oninput="updateQuotePreview()"></div>
+        <div class="form-group"><label>Authorized Signatory Name</label><input type="text" id="quo-auth" value="${data ? data.auth : 'Orbenyx'}" oninput="updateQuotePreview()"></div>
         
         <h3>Itemized Estimates</h3>
         <div id="quo-items-container"></div>
@@ -957,10 +980,10 @@ function renderQuoteForm(data = null) {
         <div id="quo-specs-container"></div>
         <button class="btn btn-primary btn-sm" onclick="addQuoteSpec()"><i class="fa-solid fa-plus"></i> Add Specification</button>
     `;
-    
+
     renderQuoteItemInputs();
     renderQuoteSpecInputs();
-    
+
     if (!data) {
         fetchAutoNumber('quotation', 'quo-no', updateQuotePreview);
     } else {
@@ -1003,7 +1026,7 @@ function renderQuoteSpecInputs() {
 }
 
 function addQuoteRow() { quoteRows.push({ service: '', desc: '', qty: 1, rate: 0 }); renderQuoteItemInputs(); updateQuotePreview(); }
-function removeQuoteRow(i) { if(quoteRows.length > 1) { quoteRows.splice(i, 1); renderQuoteItemInputs(); updateQuotePreview(); } }
+function removeQuoteRow(i) { if (quoteRows.length > 1) { quoteRows.splice(i, 1); renderQuoteItemInputs(); updateQuotePreview(); } }
 function updateQuoRow(i, field, val) { quoteRows[i][field] = val; updateQuotePreview(); }
 
 function addQuoteSpec() { quoteSpecs.push({ text: '' }); renderQuoteSpecInputs(); updateQuotePreview(); }
@@ -1021,31 +1044,31 @@ function updateQuotePreview() {
     const email = document.getElementById('quo-email').value;
     const project = document.getElementById('quo-project').value;
     const venue = document.getElementById('quo-venue').value;
-    
+
     const useDsign = document.getElementById('quo-dsign-check').checked;
     const authName = document.getElementById('quo-auth').value;
     const authSig = useDsign && authName ? `<div class="digital-sig">${authName}</div>` : '<br><br><br>';
-    
+
     let tbody = '';
     let grandTotal = 0;
-    
+
     quoteRows.forEach((row, i) => {
         const qty = parseFloat(row.qty) || 0;
         const rate = parseFloat(row.rate) || 0;
         const amt = qty * rate;
         grandTotal += amt;
-        
+
         tbody += `
             <tr>
                 <td class="text-center">${i + 1}</td>
                 <td><strong>${row.service}</strong><br><span style="color:#555; font-size:0.75rem;">${row.desc}</span></td>
                 <td class="text-center">${qty}</td>
-                <td class="text-right">${rate.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                <td class="text-right">${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                <td class="text-right">${rate.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                <td class="text-right">${amt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
             </tr>
         `;
     });
-    
+
     let specHtml = '';
     if (quoteSpecs.length > 0) {
         let lis = '';
@@ -1070,7 +1093,7 @@ function updateQuotePreview() {
             `;
         }
     }
-    
+
     document.getElementById('preview-wrapper').innerHTML = `
         <div class="document-paper full-a4" style="justify-content: space-between;">
             <div>
@@ -1123,7 +1146,7 @@ function updateQuotePreview() {
                     <table class="doc-totals-table">
                         <tr class="bold-row">
                             <td>Total Estimate Value</td>
-                            <td class="text-right">₹ ${grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                            <td class="text-right">₹ ${grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                         </tr>
                     </table>
                 </div>
@@ -1147,7 +1170,7 @@ function updateQuotePreview() {
                 
                 <div class="doc-signature-block">
                     <div class="doc-signature-wrap">
-                        <span>For <strong>Rturox Tech</strong></span>
+                        <span>For <strong>Orbenyx</strong></span>
                         ${authSig}
                         <div class="doc-signature-line">Authorized Signatory</div>
                     </div>
@@ -1167,7 +1190,7 @@ function renderInvoiceForm(data = null) {
     } else {
         invoiceRows = [{ service: 'Software Development Services', desc: 'Custom CRM Portal Development - Milestone 2', sac: '998313', qty: 1, rate: 45000 }];
     }
-    
+
     document.getElementById('dynamic-form').innerHTML = `
         <div class="form-row">
             <div class="form-group"><label>Invoice No</label><input type="text" id="inv-no" value="${data ? data.no : 'INV-...'}" oninput="updateInvoicePreview()"></div>
@@ -1194,7 +1217,7 @@ function renderInvoiceForm(data = null) {
             <input type="checkbox" id="inv-dsign-check" ${data ? (data.dsign ? 'checked' : '') : 'checked'} onchange="updateInvoicePreview()">
             <label for="inv-dsign-check">Enable Digital Signature</label>
         </div>
-        <div class="form-group"><label>Authorized Signatory Name</label><input type="text" id="inv-auth" value="${data ? data.auth : 'Rturox'}" oninput="updateInvoicePreview()"></div>
+        <div class="form-group"><label>Authorized Signatory Name</label><input type="text" id="inv-auth" value="${data ? data.auth : 'Orbenyx'}" oninput="updateInvoicePreview()"></div>
         
         <h3>Itemized Invoice Rows</h3>
         <div id="inv-items-container"></div>
@@ -1203,9 +1226,9 @@ function renderInvoiceForm(data = null) {
         <hr>
         <div class="form-group"><label>Received Amount (₹)</label><input type="number" id="inv-received" value="${data ? data.received : 20000}" oninput="updateInvoicePreview()"></div>
     `;
-    
+
     renderInvoiceItemInputs();
-    
+
     if (!data) {
         fetchAutoNumber('invoice', 'inv-no', updateInvoicePreview);
     } else {
@@ -1238,7 +1261,7 @@ function renderInvoiceItemInputs() {
 }
 
 function addInvoiceRow() { invoiceRows.push({ service: '', desc: '', sac: '', qty: 1, rate: 0 }); renderInvoiceItemInputs(); updateInvoicePreview(); }
-function removeInvoiceRow(i) { if(invoiceRows.length > 1) { invoiceRows.splice(i, 1); renderInvoiceItemInputs(); updateInvoicePreview(); } }
+function removeInvoiceRow(i) { if (invoiceRows.length > 1) { invoiceRows.splice(i, 1); renderInvoiceItemInputs(); updateInvoicePreview(); } }
 function updateInvRow(i, field, val) { invoiceRows[i][field] = val; updateInvoicePreview(); }
 
 function updateInvoicePreview() {
@@ -1253,37 +1276,37 @@ function updateInvoicePreview() {
     const gstin = document.getElementById('inv-gst').value;
     const pan = document.getElementById('inv-pan').value;
     const received = parseFloat(document.getElementById('inv-received').value) || 0;
-    
+
     const useDsign = document.getElementById('inv-dsign-check').checked;
     const authName = document.getElementById('inv-auth').value;
     const authSig = useDsign && authName ? `<div class="digital-sig">${authName}</div>` : '<br><br><br>';
-    
+
     let tbody = '';
     let taxableTotal = 0;
-    
+
     invoiceRows.forEach((row, i) => {
         const qty = parseFloat(row.qty) || 0;
         const rate = parseFloat(row.rate) || 0;
         const amt = qty * rate;
         taxableTotal += amt;
-        
+
         tbody += `
             <tr>
                 <td class="text-center">${i + 1}</td>
                 <td><strong>${row.service}</strong><br><span style="color:#555; font-size:0.75rem;">${row.desc}</span></td>
                 <td class="text-center">${row.sac}</td>
                 <td class="text-center">${qty} SQM</td>
-                <td class="text-right">${rate.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
-                <td class="text-right">${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                <td class="text-right">${rate.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                <td class="text-right">${amt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
             </tr>
         `;
     });
-    
+
     const cgst = taxableTotal * 0.09;
     const sgst = taxableTotal * 0.09;
     const grandTotal = taxableTotal + cgst + sgst;
     const balance = grandTotal - received;
-    
+
     document.getElementById('preview-wrapper').innerHTML = `
         <div class="document-paper full-a4">
             <div class="doc-letterhead">
@@ -1337,27 +1360,27 @@ function updateInvoicePreview() {
                 <table class="doc-totals-table">
                     <tr>
                         <td>Taxable Value</td>
-                        <td class="text-right">₹ ${taxableTotal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">₹ ${taxableTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                     </tr>
                     <tr>
                         <td>CGST @ 9%</td>
-                        <td class="text-right">₹ ${cgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">₹ ${cgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                     </tr>
                     <tr>
                         <td>SGST @ 9%</td>
-                        <td class="text-right">₹ ${sgst.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">₹ ${sgst.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                     </tr>
                     <tr class="bold-row">
                         <td>Total Value (INR)</td>
-                        <td class="text-right">₹ ${grandTotal.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">₹ ${grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                     </tr>
                     <tr>
                         <td>Received Amount</td>
-                        <td class="text-right">₹ ${received.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">₹ ${received.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                     </tr>
                     <tr class="bal-row">
                         <td>Balance Outstanding</td>
-                        <td class="text-right">₹ ${balance.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                        <td class="text-right">₹ ${balance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                     </tr>
                 </table>
             </div>
@@ -1369,12 +1392,12 @@ function updateInvoicePreview() {
             
             <div style="margin-top: 15px; font-size: 0.8rem; border-top: 1px dashed #cbd5e1; padding-top: 10px;">
                 <strong>Bank Details for UPI/NEFT Transfer:</strong><br>
-                <span>Bank: HDFC Bank | Account Name: Rturox Tech | Account No: 50200062402131 | IFSC: HDFC0001216 | Branch: Coimbatore</span>
+                <span>Bank: HDFC Bank | Account Name: Orbenyx | Account No: 50200062402131 | IFSC: HDFC0001216 | Branch: Coimbatore</span>
             </div>
             
             <div class="doc-signature-block" style="margin-top: 30px;">
                 <div class="doc-signature-wrap">
-                    <span>For <strong>Rturox Tech</strong></span>
+                    <span>For <strong>Orbenyx</strong></span>
                     ${authSig}
                     <div class="doc-signature-line">Authorized Signatory</div>
                 </div>
@@ -1414,10 +1437,10 @@ function renderReceiptForm(data = null) {
         </div>
         <div class="form-row">
             <div class="form-group"><label>Received By</label><input type="text" id="rec-by" value="${data ? data.by : 'Finance Manager'}" oninput="updateReceiptPreview()"></div>
-            <div class="form-group"><label>Authorized By</label><input type="text" id="rec-auth" value="${data ? data.auth : 'Rturox'}" oninput="updateReceiptPreview()"></div>
+            <div class="form-group"><label>Authorized By</label><input type="text" id="rec-auth" value="${data ? data.auth : 'Orbenyx'}" oninput="updateReceiptPreview()"></div>
         </div>
     `;
-    
+
     if (!data) {
         fetchAutoNumber('receipt', 'rec-no', updateReceiptPreview);
     } else {
@@ -1433,14 +1456,14 @@ function updateReceiptPreview() {
     const amt = parseFloat(document.getElementById('rec-amt').value) || 0;
     const desc = document.getElementById('rec-desc').value;
     const method = document.getElementById('rec-method').value;
-    
+
     const useDsign = document.getElementById('rec-dsign-check').checked;
     const byName = document.getElementById('rec-by').value;
     const authName = document.getElementById('rec-auth').value;
-    
+
     const bySig = useDsign && byName ? `<div class="digital-sig">${byName}</div>` : '<br><br>';
     const authSig = useDsign && authName ? `<div class="digital-sig">${authName}</div>` : '<br><br>';
-    
+
     document.getElementById('preview-wrapper').innerHTML = `
         <div class="document-paper one-third-a4">
             <div>
@@ -1463,7 +1486,7 @@ function updateReceiptPreview() {
                         <span>Received From: <strong>${from}</strong></span>
                         <span>Payment Method: <strong>${method}</strong></span>
                     </div>
-                    <div>Paid Sum: <strong>₹ ${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</strong> <em>(${numberToWords(amt)})</em></div>
+                    <div>Paid Sum: <strong>₹ ${amt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong> <em>(${numberToWords(amt)})</em></div>
                     <div>For Particulars: <strong>${desc}</strong></div>
                 </div>
             </div>
@@ -1475,7 +1498,7 @@ function updateReceiptPreview() {
                 </div>
                 <div style="text-align: center; width: 150px;">
                     ${authSig}
-                    <div style="border-top: 1px solid #000; padding-top: 2px; font-weight: bold;">For Rturox Tech</div>
+                    <div style="border-top: 1px solid #000; padding-top: 2px; font-weight: bold;">For Orbenyx</div>
                 </div>
             </div>
         </div>
@@ -1512,11 +1535,11 @@ function renderVoucherForm(data = null) {
         </div>
         <div class="form-row">
             <div class="form-group"><label>Paid By</label><input type="text" id="vou-by" value="${data ? data.by : 'Studio Lead'}" oninput="updateVoucherPreview()"></div>
-            <div class="form-group"><label>Approved By</label><input type="text" id="vou-appr" value="${data ? data.appr : 'Rturox'}" oninput="updateVoucherPreview()"></div>
+            <div class="form-group"><label>Approved By</label><input type="text" id="vou-appr" value="${data ? data.appr : 'Orbenyx'}" oninput="updateVoucherPreview()"></div>
             <div class="form-group"><label>Receiver Signature</label><input type="text" id="vou-rec" value="${data ? data.rec : 'Ganesh Kumar'}" oninput="updateVoucherPreview()"></div>
         </div>
     `;
-    
+
     if (!data) {
         fetchAutoNumber('voucher', 'vou-no', updateVoucherPreview);
     } else {
@@ -1532,16 +1555,16 @@ function updateVoucherPreview() {
     const amt = parseFloat(document.getElementById('vou-amt').value) || 0;
     const desc = document.getElementById('vou-desc').value;
     const mode = document.getElementById('vou-mode').value;
-    
+
     const useDsign = document.getElementById('vou-dsign-check').checked;
     const byName = document.getElementById('vou-by').value;
     const apprName = document.getElementById('vou-appr').value;
     const recName = document.getElementById('vou-rec').value;
-    
+
     const bySig = useDsign && byName ? `<div class="digital-sig">${byName}</div>` : '<br><br>';
     const apprSig = useDsign && apprName ? `<div class="digital-sig">${apprName}</div>` : '<br><br>';
     const recSig = useDsign && recName ? `<div class="digital-sig">${recName}</div>` : '<br><br>';
-    
+
     document.getElementById('preview-wrapper').innerHTML = `
         <div class="document-paper one-third-a4">
             <div>
@@ -1564,7 +1587,7 @@ function updateVoucherPreview() {
                         <span>Paid To: <strong>${to}</strong></span>
                         <span>Payment Mode: <strong>${mode}</strong></span>
                     </div>
-                    <div>Debit Amount: <strong>₹ ${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</strong> <em>(${numberToWords(amt)})</em></div>
+                    <div>Debit Amount: <strong>₹ ${amt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong> <em>(${numberToWords(amt)})</em></div>
                     <div>Particulars: <strong>${desc}</strong></div>
                 </div>
             </div>
@@ -1603,7 +1626,7 @@ function renderLabourForm(data = null) {
         <div class="form-group"><label>Mobile</label><input type="text" id="lab-mob" value="${data ? data.mob || '' : '9443212345'}" oninput="updateLabourPreview()"></div>
         
         <h3>Project Parameters</h3>
-        <div class="form-group"><label>Project Name / Description</label><input type="text" id="lab-site" value="${data ? data.site : 'Rturox E-Commerce App Development'}" oninput="updateLabourPreview()"></div>
+        <div class="form-group"><label>Project Name / Description</label><input type="text" id="lab-site" value="${data ? data.site : 'Orbenyx Web Application Development'}" oninput="updateLabourPreview()"></div>
         <div class="form-group"><label>Scope of Work / Stack</label><input type="text" id="lab-scope" value="${data ? data.scope : 'React Native mobile development and REST API integration'}" oninput="updateLabourPreview()"></div>
         
         <div class="form-row">
@@ -1622,9 +1645,9 @@ function renderLabourForm(data = null) {
             <input type="checkbox" id="lab-dsign-check" ${data ? (data.dsign ? 'checked' : '') : 'checked'} onchange="updateLabourPreview()">
             <label for="lab-dsign-check">Enable Digital Signature</label>
         </div>
-        <div class="form-group"><label>Authorized Project Manager</label><input type="text" id="lab-auth" value="${data ? data.auth : 'Rturox'}" oninput="updateLabourPreview()"></div>
+        <div class="form-group"><label>Authorized Project Manager</label><input type="text" id="lab-auth" value="${data ? data.auth : 'Orbenyx'}" oninput="updateLabourPreview()"></div>
     `;
-    
+
     if (!data) {
         fetchAutoNumber('labour', 'lab-no', updateLabourPreview);
     } else {
@@ -1646,12 +1669,12 @@ function updateLabourPreview() {
     const retention = parseFloat(document.getElementById('lab-retention').value) || 0;
     const target = document.getElementById('lab-target').value ? document.getElementById('lab-target').value.split('-').reverse().join('/') : 'N/A';
     const schedule = document.getElementById('lab-schedule').value;
-    
+
     const useDsign = document.getElementById('lab-dsign-check').checked;
     const authName = document.getElementById('lab-auth').value;
     const authSig = useDsign && authName ? `<div class="digital-sig">${authName}</div>` : '<br><br>';
     const contractorSig = useDsign && contractor ? `<div class="digital-sig">${contractor.split(' ')[0]}</div>` : '<br><br>';
-    
+
     document.getElementById('preview-wrapper').innerHTML = `
         <div class="document-paper full-a4" style="justify-content: space-between;">
             <div>
@@ -1665,7 +1688,7 @@ function updateLabourPreview() {
                 <h2 class="text-center" style="font-size: 1.25rem; font-weight: bold; margin-bottom: 20px; text-decoration: underline;">DEVELOPER CONTRACT AGREEMENT</h2>
                 
                 <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 15px;" class="text-justify">
-                    This agreement is made on <strong>${date}</strong>, between <strong>Rturox Tech</strong> (referred to as the Principal) and <strong>${contractor}</strong>, located at ${addr} (referred to as the Developer).
+                    This agreement is made on <strong>${date}</strong>, between <strong>Orbenyx</strong> (referred to as the Principal) and <strong>${contractor}</strong>, located at ${addr} (referred to as the Developer).
                 </p>
                 
                 <table class="doc-table" style="margin-bottom: 15px;">
@@ -1704,7 +1727,7 @@ function updateLabourPreview() {
                 </div>
                 
                 <div style="text-align: center; width: 220px;">
-                    <span>For <strong>Rturox Tech</strong></span>
+                    <span>For <strong>Orbenyx</strong></span>
                     ${authSig}
                     <div style="border-top: 1px solid #000; padding-top: 3px; font-weight: bold;">Authorized Manager</div>
                 </div>
@@ -1729,7 +1752,7 @@ function renderHandoverForm(data = null) {
         <div class="form-group"><label>Client Company Address</label><textarea id="hnd-addr" rows="2" oninput="updateHandoverPreview()">${data ? data.addr : '12, Avinashi Road, Peelamedu, Coimbatore'}</textarea></div>
         
         <h3>Project Specifics</h3>
-        <div class="form-group"><label>Project Name / Repo URL</label><input type="text" id="hnd-stall" value="${data ? data.stall : 'Rturox E-Commerce Web Application (Github: repo/rturox-ecommerce)'}" oninput="updateHandoverPreview()"></div>
+        <div class="form-group"><label>Project Name / Repo URL</label><input type="text" id="hnd-stall" value="${data ? data.stall : 'Orbenyx Web Application (Github: repo/orbenyx-app)'}" oninput="updateHandoverPreview()"></div>
         <div class="form-group"><label>Deployment Target / Platform</label><input type="text" id="hnd-venue" value="${data ? data.venue : 'AWS Cloud EC2 & Vercel Production'}" oninput="updateHandoverPreview()"></div>
         <div class="form-group"><label>Project Milestone / Version</label><input type="text" id="hnd-event" value="${data ? data.event : 'Production Release (V1.0.0-stable)'}" oninput="updateHandoverPreview()"></div>
         <div class="form-group"><label>Actual Launch Date</label><input type="date" id="hnd-completion" value="${data ? data.completion : getToday()}" oninput="updateHandoverPreview()"></div>
@@ -1740,11 +1763,11 @@ function renderHandoverForm(data = null) {
             <label for="hnd-dsign-check">Enable Digital Signatures</label>
         </div>
         <div class="form-row">
-            <div class="form-group"><label>Handed Over By</label><input type="text" id="hnd-auth" value="${data ? data.auth : 'Rturox'}" oninput="updateHandoverPreview()"></div>
+            <div class="form-group"><label>Handed Over By</label><input type="text" id="hnd-auth" value="${data ? data.auth : 'Orbenyx'}" oninput="updateHandoverPreview()"></div>
             <div class="form-group"><label>Accepted & Received By</label><input type="text" id="hnd-rec" value="${data ? data.rec : 'S. Jayakumar'}" oninput="updateHandoverPreview()"></div>
         </div>
     `;
-    
+
     if (!data) {
         fetchAutoNumber('handover', 'hnd-no', updateHandoverPreview);
     } else {
@@ -1763,14 +1786,14 @@ function updateHandoverPreview() {
     const venue = document.getElementById('hnd-venue').value;
     const event = document.getElementById('hnd-event').value;
     const completion = document.getElementById('hnd-completion').value.split('-').reverse().join('/');
-    
+
     const useDsign = document.getElementById('hnd-dsign-check').checked;
     const authName = document.getElementById('hnd-auth').value;
     const recName = document.getElementById('hnd-rec').value;
-    
+
     const authSig = useDsign && authName ? `<div class="digital-sig">${authName}</div>` : '<br><br>';
     const recSig = useDsign && recName ? `<div class="digital-sig">${recName.split(' ')[0]}</div>` : '<br><br>';
-    
+
     document.getElementById('preview-wrapper').innerHTML = `
         <div class="document-paper full-a4" style="justify-content: space-between;">
             <div>
@@ -1812,7 +1835,7 @@ function updateHandoverPreview() {
                         Kindly inspect the application deployments at your earliest convenience and confirm formal sign-off by signing this letter copy.
                     </p>
                     <br>
-                    <p>We thank you for partnering with <strong>Rturox Tech</strong> and wish you a successful business event!</p>
+                    <p>We thank you for partnering with <strong>Orbenyx</strong> and wish you a successful business event!</p>
                 </div>
             </div>
             
@@ -1820,7 +1843,7 @@ function updateHandoverPreview() {
                 <div style="text-align: center; width: 220px;">
                     <span>Handed Over By:</span>
                     ${authSig}
-                    <div style="border-top: 1px solid #000; padding-top: 3px; font-weight: bold;">For Rturox Tech</div>
+                    <div style="border-top: 1px solid #000; padding-top: 3px; font-weight: bold;">For Orbenyx</div>
                 </div>
                 
                 <div style="text-align: center; width: 200px;">
@@ -1865,10 +1888,10 @@ function renderExpenseForm(data = null) {
         </div>
         <div class="form-row">
             <div class="form-group"><label>Spender Name</label><input type="text" id="exp-by" value="${data ? data.by : 'DevOps Engineer'}" oninput="updateExpensePreview()"></div>
-            <div class="form-group"><label>Approver Name</label><input type="text" id="exp-auth" value="${data ? data.auth : 'Rturox'}" oninput="updateExpensePreview()"></div>
+            <div class="form-group"><label>Approver Name</label><input type="text" id="exp-auth" value="${data ? data.auth : 'Orbenyx'}" oninput="updateExpensePreview()"></div>
         </div>
     `;
-    
+
     if (!data) {
         fetchAutoNumber('expense', 'exp-id', updateExpensePreview);
     } else {
@@ -1884,14 +1907,14 @@ function updateExpensePreview() {
     const amt = parseFloat(document.getElementById('exp-amt').value) || 0;
     const desc = document.getElementById('exp-desc').value;
     const cat = document.getElementById('exp-cat').value;
-    
+
     const useDsign = document.getElementById('exp-dsign-check').checked;
     const byName = document.getElementById('exp-by').value;
     const authName = document.getElementById('exp-auth').value;
-    
+
     const bySig = useDsign && byName ? `<div class="digital-sig">${byName}</div>` : '<br><br>';
     const authSig = useDsign && authName ? `<div class="digital-sig">${authName}</div>` : '<br><br>';
-    
+
     document.getElementById('preview-wrapper').innerHTML = `
         <div class="document-paper one-third-a4">
             <div>
@@ -1914,7 +1937,7 @@ function updateExpensePreview() {
                         <span>Paid To: <strong>${to}</strong></span>
                         <span>Debit Category: <strong>${cat}</strong></span>
                     </div>
-                    <div>Expense Sum: <strong>₹ ${amt.toLocaleString('en-IN', {minimumFractionDigits: 2})}</strong> <em>(${numberToWords(amt)})</em></div>
+                    <div>Expense Sum: <strong>₹ ${amt.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong> <em>(${numberToWords(amt)})</em></div>
                     <div>Particulars: <strong>${desc}</strong></div>
                 </div>
             </div>
@@ -1957,10 +1980,14 @@ function renderLetterPadForm(data = null) {
             <input type="checkbox" id="let-dsign-check" ${data ? (data.dsign ? 'checked' : '') : 'checked'} onchange="updateLetterPadPreview()">
             <label for="let-dsign-check">Enable Digital Signature</label>
         </div>
-        <div class="form-group"><label>Signatory Name</label><input type="text" id="let-auth" value="${data ? data.auth : 'Rturox'}" oninput="updateLetterPadPreview()"></div>
+        <div class="form-group"><label>Signatory Name</label><input type="text" id="let-auth" value="${data ? data.auth : 'Orbenyx'}" oninput="updateLetterPadPreview()"></div>
     `;
-    
-    updateLetterPadPreview();
+
+    if (!data) {
+        fetchAutoNumber('letterpad', 'let-no', updateLetterPadPreview);
+    } else {
+        updateLetterPadPreview();
+    }
 }
 
 function updateLetterPadPreview() {
@@ -1970,11 +1997,11 @@ function updateLetterPadPreview() {
     const subject = document.getElementById('let-subject').value;
     const body = document.getElementById('let-body').value.replace(/\n/g, '<br>');
     const showGst = document.getElementById('let-showgst-check').checked;
-    
+
     const useDsign = document.getElementById('let-dsign-check').checked;
     const authName = document.getElementById('let-auth').value;
     const authSig = useDsign && authName ? `<div class="digital-sig">${authName}</div>` : '<br><br><br>';
-    
+
     document.getElementById('preview-wrapper').innerHTML = `
         <div class="document-paper full-a4" style="justify-content: space-between;">
             <div>
@@ -2000,7 +2027,7 @@ function updateLetterPadPreview() {
             
             <div class="doc-signature-block">
                 <div class="doc-signature-wrap">
-                    <span>For <strong>Rturox Tech</strong></span>
+                    <span>For <strong>Orbenyx</strong></span>
                     ${authSig}
                     <div class="doc-signature-line">Authorized Signatory</div>
                 </div>
@@ -2019,7 +2046,7 @@ function numberToWords(num) {
     if (num === 0) return "Zero Rupees Only";
     const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
     const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-    
+
     function convert(n) {
         if (n < 20) return a[n];
         if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
@@ -2041,11 +2068,11 @@ function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     const msgSpan = document.getElementById('toast-message');
     const iconSpan = document.getElementById('toast-icon');
-    
+
     // Set style properties
     toast.className = `toast-notification toast-${type}`;
     msgSpan.innerText = message;
-    
+
     // Set icons
     if (type === 'success') {
         iconSpan.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
@@ -2054,9 +2081,9 @@ function showToast(message, type = 'success') {
     } else if (type === 'info') {
         iconSpan.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
     }
-    
+
     toast.classList.add('show');
-    
+
     // Auto-remove after 4 seconds
     setTimeout(() => {
         toast.classList.remove('show');

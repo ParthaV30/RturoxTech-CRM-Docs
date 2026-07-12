@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rturox Tech - Office Portal</title>
+    <title>Orbenyx - Financials & Portal</title>
     
     <!-- Google Fonts for premium look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,214 +17,873 @@
 </head>
 <body>
 
-    <!-- TOPBAR -->
-    <header class="topbar no-print">
-        <div class="logo-area">
-            <div class="logo-icon"><img src="logo.png" alt="Rturox Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>
-            <div class="logo-text">
-                <h1>Rturox Tech</h1>
-                <span>Office Portal & Document Generator</span>
+    <div class="portal-wrapper">
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar no-print" id="portal-sidebar" style="display: none;">
+            <div class="sidebar-brand">
+                <div class="logo-icon-wrap"><img src="logo.png" alt="Orbenyx" style="width: 100%; height: 100%; object-fit: contain;"></div>
+                <div class="brand-text">
+                    <h2>Orbenyx</h2>
+                    <span>Financial Portal</span>
+                </div>
             </div>
-        </div>
-        
-        <!-- QUICK CONFIG OR BACKUP -->
-        <div class="topbar-actions">
-            <button class="btn btn-secondary btn-sm" onclick="downloadBackup()" title="Download SQLite DB Backup"><i class="fa-solid fa-download"></i> Backup DB</button>
-            <button class="btn btn-secondary btn-sm" onclick="triggerRestoreUpload()" title="Upload SQLite DB Backup"><i class="fa-solid fa-upload"></i> Restore DB</button>
-            <input type="file" id="restore-file-input" style="display: none;" accept=".sqlite,.json" onchange="handleRestoreUpload(event)">
-            <button class="btn btn-danger btn-sm" onclick="logoutAdmin()" title="Logout from Portal" style="margin-left: 10px; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger);"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
-        </div>
-    </header>
+            
+            <div class="user-role-section">
+                <div class="user-avatar"><i class="fa-solid fa-user-shield"></i></div>
+                <div class="user-details">
+                    <h4 id="user-display-name">Administrator</h4>
+                    <span class="role-badge" id="user-display-role">Super Admin</span>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="javascript:void(0)" class="nav-item active" id="nav-dashboard" onclick="switchPortalTab('dashboard')">
+                    <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-expenses" onclick="switchPortalTab('expenses')">
+                    <i class="fa-solid fa-wallet"></i> <span>Expenses</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-income" onclick="switchPortalTab('income')">
+                    <i class="fa-solid fa-sack-dollar"></i> <span>Income Tracker</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-claims" onclick="switchPortalTab('claims')">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> <span>Expense Claims</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-my-salary" onclick="switchPortalTab('my-salary')" style="display: none;">
+                    <i class="fa-solid fa-money-check-dollar"></i> <span>My Salary</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-vendors" onclick="switchPortalTab('vendors')">
+                    <i class="fa-solid fa-shop"></i> <span>Vendors</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-subscriptions" onclick="switchPortalTab('subscriptions')">
+                    <i class="fa-solid fa-rotate"></i> <span>Subscriptions</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-assets" onclick="switchPortalTab('assets')">
+                    <i class="fa-solid fa-laptop-house"></i> <span>Assets</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-projects" onclick="switchPortalTab('projects')">
+                    <i class="fa-solid fa-diagram-project"></i> <span>Projects</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-employees" onclick="switchPortalTab('employees')">
+                    <i class="fa-solid fa-users-gear"></i> <span>Employees</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-docs" onclick="switchPortalTab('docs')">
+                    <i class="fa-solid fa-file-invoice"></i> <span>Doc Builder</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-reports" onclick="switchPortalTab('reports')">
+                    <i class="fa-solid fa-file-contract"></i> <span>Reports</span>
+                </a>
+                <a href="javascript:void(0)" class="nav-item" id="nav-analytics" onclick="switchPortalTab('analytics')">
+                    <i class="fa-solid fa-chart-line"></i> <span>Analytics</span>
+                </a>
+            </nav>
+            
+            <!-- Quick Role Switcher for Super Admin (Testing Emulator) -->
+            <div class="role-switcher-wrap" id="quick-role-switcher" style="display: none;">
+                <label for="emulate-role-select"><i class="fa-solid fa-user-gear"></i> Emulate Role</label>
+                <select id="emulate-role-select" onchange="emulateRoleSwitch(this.value)">
+                    <option value="Super Admin">Super Admin</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Accountant">Accountant</option>
+                    <option value="Employee">Employee</option>
+                </select>
+            </div>
+        </aside>
 
-    <main class="container">
-        
-        <!-- DASHBOARD VIEW -->
-        <section id="dashboard-view" class="no-print">
+        <!-- MAIN LAYOUT AREA -->
+        <div class="main-content-layout">
             
-            <!-- Welcome Header -->
-            <div class="dashboard-header">
-                <h2>Welcome back!</h2>
-                <p>Select a module below to generate documents, or view the history of saved transactions.</p>
-            </div>
-            
-            <!-- Statistics Panel -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon icon-blue"><i class="fa-solid fa-file-invoice"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Documents</span>
-                        <h3 id="stat-total-docs">0</h3>
+            <!-- TOPBAR -->
+            <header class="topbar no-print">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle-btn no-print" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+                    <div class="topbar-title">
+                        <span class="db-badge badge-connected" id="db-status-badge"><i class="fa-solid fa-circle-check"></i> DB Connected Mode</span>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon icon-green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-label">Total Invoiced</span>
-                        <h3 id="stat-total-invoiced">₹ 0.00</h3>
-                    </div>
+                
+                <div class="topbar-actions">
+                    <button class="btn btn-secondary btn-sm" onclick="downloadBackup()" title="Download SQLite DB Backup"><i class="fa-solid fa-download"></i> Backup DB</button>
+                    <button class="btn btn-secondary btn-sm" onclick="triggerRestoreUpload()" title="Upload SQLite DB Backup"><i class="fa-solid fa-upload"></i> Restore DB</button>
+                    <input type="file" id="restore-file-input" style="display: none;" accept=".sqlite,.json" onchange="handleRestoreUpload(event)">
+                    <button class="btn btn-danger btn-sm" onclick="logoutAdmin()" title="Logout from Portal" style="margin-left: 10px; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); color: var(--danger);"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon icon-yellow"><i class="fa-solid fa-money-bill-transfer"></i></div>
-                    <div class="stat-info">
-                        <span class="stat-label">Transactions Today</span>
-                        <h3 id="stat-today-docs">0</h3>
-                    </div>
-                </div>
-            </div>
+            </header>
 
-            <!-- Analytics Chart Section -->
-            <div class="analytics-section">
-                <div class="analytics-header">
-                    <div class="analytics-title-group">
-                        <h3><i class="fa-solid fa-chart-column"></i> Activity Overview</h3>
-                        <span class="analytics-subtitle">Monthly document count &amp; invoice revenue (last 6 months)</span>
+            <main class="container">
+                
+                <!-- 1. FINANCIAL DASHBOARD VIEW -->
+                <section id="financial-dashboard-view" class="tab-view no-print">
+                    <div class="dashboard-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px;">
+                        <div>
+                            <h2>Financial Dashboard</h2>
+                            <p>Real-time analytics, company cash reserves, pending invoices, and active alerts.</p>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" id="btn-edit-balances" onclick="openSettingsModal()" style="align-self:center;"><i class="fa-solid fa-pen-to-square"></i> Set Starting Balances</button>
                     </div>
-                    <div class="chart-legend">
-                        <span class="legend-item"><span class="legend-dot legend-docs"></span>Documents</span>
-                        <span class="legend-item"><span class="legend-dot legend-revenue"></span>Invoice Revenue</span>
+
+                    <!-- Statistics Cards Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon icon-blue"><i class="fa-solid fa-calendar-day"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Today's Expenses</span>
+                                <h3 id="dash-today-expenses">₹ 0.00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-orange"><i class="fa-solid fa-calendar-days"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">This Month Expenses</span>
+                                <h3 id="dash-month-expenses">₹ 0.00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-green"><i class="fa-solid fa-sack-dollar"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Revenue</span>
+                                <h3 id="dash-total-revenue">₹ 0.00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-purple"><i class="fa-solid fa-chart-line"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Net Profit</span>
+                                <h3 id="dash-net-profit">₹ 0.00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-yellow"><i class="fa-solid fa-clock"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Pending Payments</span>
+                                <h3 id="dash-pending-payments">₹ 0.00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-red"><i class="fa-solid fa-wallet"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Cash in Hand</span>
+                                <h3 id="dash-cash-in-hand">₹ 0.00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-accent"><i class="fa-solid fa-building-columns"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Bank Balance</span>
+                                <h3 id="dash-bank-balance">₹ 0.00</h3>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="analytics-chart-wrap">
-                    <canvas id="analytics-chart"></canvas>
-                    <div id="analytics-empty" class="analytics-empty" style="display:none;">
-                        <i class="fa-solid fa-chart-simple"></i>
-                        <p>No data yet — create some documents to see analytics.</p>
+
+                    <!-- Double Column Dashboard Grid -->
+                    <div class="dashboard-columns-grid">
+                        
+                        <!-- Left: Visual Charts -->
+                        <div class="dash-column-left">
+                            <div class="analytics-section">
+                                <div class="analytics-header">
+                                    <div class="analytics-title-group">
+                                        <h3><i class="fa-solid fa-chart-column"></i> Expense Monthly Trend</h3>
+                                        <span class="analytics-subtitle">Track historical monthly spending</span>
+                                    </div>
+                                </div>
+                                <div class="analytics-chart-wrap" style="position: relative; height:280px;">
+                                    <canvas id="dashboard-trend-chart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Transactions -->
+                            <div class="history-section" style="margin-top: 20px;">
+                                <div class="history-header">
+                                    <div class="title-wrap">
+                                        <h3>Recent Transactions</h3>
+                                        <p>Combined ledger of recent income payments and expenses</p>
+                                    </div>
+                                </div>
+                                <div class="history-table-container">
+                                    <table class="history-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Date</th>
+                                                <th>Category / Source</th>
+                                                <th>Amount</th>
+                                                <th>Method</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dash-recent-transactions-tbody">
+                                            <tr><td colspan="6" class="text-center">Loading transactions...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right: Notifications & Category distribution -->
+                        <div class="dash-column-right">
+                            <!-- Alert Center -->
+                            <div class="analytics-section alerts-box">
+                                <div class="analytics-header">
+                                    <h3><i class="fa-solid fa-bell"></i> Alerts &amp; Notifications</h3>
+                                </div>
+                                <div class="alerts-list" id="dashboard-alerts-list">
+                                    <div class="no-alerts-msg"><i class="fa-solid fa-circle-check"></i> All accounts in order. No pending alerts.</div>
+                                </div>
+                            </div>
+
+                            <!-- Category breakdown Pie chart -->
+                            <div class="analytics-section" style="margin-top: 20px;">
+                                <div class="analytics-header">
+                                    <h3><i class="fa-solid fa-chart-pie"></i> Category Distribution</h3>
+                                </div>
+                                <div class="analytics-chart-wrap" style="position: relative; height:280px; display: flex; justify-content: center; align-items: center;">
+                                    <canvas id="dashboard-pie-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                </div>
-            </div>
-            
-            <!-- Modules Grid -->
-            <div class="section-title">
-                <h3>Document Modules</h3>
-                <span class="divider"></span>
-            </div>
-            
-            <div class="dashboard-grid">
-                <div class="card card-quotation" onclick="openModule('quotation')" id="card-quotation">
-                    <div class="card-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                    <h3>Project Proposal / Quote</h3>
-                    <p>Create project proposals, custom specs & cost estimates</p>
-                </div>
-                <div class="card card-invoice" onclick="openModule('invoice')" id="card-invoice">
-                    <div class="card-icon"><i class="fa-solid fa-receipt"></i></div>
-                    <h3>Billing Invoice</h3>
-                    <p>Generate professional 18% GST tax invoices for tech services</p>
-                </div>
-                <div class="card card-receipt" onclick="openModule('receipt')" id="card-receipt">
-                    <div class="card-icon"><i class="fa-solid fa-file-signature"></i></div>
-                    <h3>Receipt Slip</h3>
-                    <p>Print client payment receipts for tech project milestones</p>
-                </div>
-                <div class="card card-voucher" onclick="openModule('voucher')" id="card-voucher">
-                    <div class="card-icon"><i class="fa-solid fa-cash-register"></i></div>
-                    <h3>Cash Voucher</h3>
-                    <p>Log and print office petty cash voucher receipts</p>
-                </div>
-                <div class="card card-labour" onclick="openModule('labour')" id="card-labour">
-                    <div class="card-icon"><i class="fa-solid fa-laptop-code"></i></div>
-                    <h3>Developer Contract</h3>
-                    <p>Draft contract agreements for developers & designers</p>
-                </div>
-                <div class="card card-handover" onclick="openModule('handover')" id="card-handover">
-                    <div class="card-icon"><i class="fa-solid fa-circle-check"></i></div>
-                    <h3>Project Handover</h3>
-                    <p>Issue formal software deployment & sign-off handovers</p>
-                </div>
-                <div class="card card-expense" onclick="openModule('expense')" id="card-expense">
-                    <div class="card-icon"><i class="fa-solid fa-credit-card"></i></div>
-                    <h3>Office Expense</h3>
-                    <p>Track server hosting, SaaS tools, and team expense claims</p>
-                </div>
-                <div class="card card-letterpad" onclick="openModule('letterpad')" id="card-letterpad">
-                    <div class="card-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
-                    <h3>Letter Pad</h3>
-                    <p>Write official letters on company letterhead</p>
-                </div>
-            </div>
-            
-            <!-- Document History Table -->
-            <div class="history-section">
-                <div class="history-header">
-                    <div class="title-wrap">
-                        <h3>Saved Document Registry</h3>
-                        <p>Search, review, reload, or delete previously created documents</p>
+                </section>
+
+                <!-- 2. EXPENSE MANAGEMENT VIEW -->
+                <section id="expenses-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>Expense Manager</h2>
+                            <p>Register SaaS tools, office rent, bills, travel and miscellaneous outflows</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openExpenseModal()"><i class="fa-solid fa-plus"></i> Add Expense</button>
                     </div>
-                    <div class="filter-controls">
+
+                    <div class="filter-bar">
                         <div class="search-input-wrap">
                             <i class="fa-solid fa-magnifying-glass"></i>
-                            <input type="text" id="history-search" placeholder="Search Client / Doc No..." oninput="filterHistoryTable()">
+                            <input type="text" id="expense-search" placeholder="Search description, employee, vendor..." oninput="filterExpenses()">
                         </div>
-                        <select id="history-filter" onchange="filterHistoryTable()">
-                            <option value="all">All Modules</option>
-                            <option value="quotation">Project Proposal / Quote</option>
-                            <option value="invoice">Billing Invoice</option>
-                            <option value="receipt">Receipt Slip</option>
-                            <option value="voucher">Cash Voucher</option>
-                            <option value="labour">Developer Contract</option>
-                            <option value="handover">Project Handover</option>
-                            <option value="expense">Office Expense</option>
-                            <option value="letterpad">Letter Pad</option>
-                        </select>
+                        <div class="filter-controls">
+                            <select id="expense-category-filter" onchange="filterExpenses()">
+                                <option value="all">All Categories</option>
+                                <option value="Office">Office</option>
+                                <option value="Employees">Employees</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Development">Development</option>
+                                <option value="Operations">Operations</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                            </select>
+                            <select id="expense-status-filter" onchange="filterExpenses()">
+                                <option value="all">All Status</option>
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="history-table-container">
-                    <table class="history-table" id="registry-table">
-                        <thead>
-                            <tr>
-                                <th width="15%">Document Type</th>
-                                <th width="15%">Document No</th>
-                                <th width="30%">Client / Payee Name</th>
-                                <th width="15%">Doc Date</th>
-                                <th width="10%">Created</th>
-                                <th width="15%" class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="history-tbody">
-                            <tr>
-                                <td colspan="6" class="text-center empty-history">
-                                    <i class="fa-solid fa-folder-open"></i> Loading records...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-        </section>
 
-        <!-- MODULE WORKSPACE VIEW -->
-        <section id="module-container" class="module-view">
-            
-            <!-- Workspace Toolbar -->
-            <div class="toolbar no-print">
-                <button class="btn btn-secondary" onclick="showDashboard()"><i class="fa-solid fa-arrow-left"></i> Dashboard</button>
-                <div class="module-info-title">
-                    <span id="module-icon-indicator"><i class="fa-solid fa-file-invoice"></i></span>
-                    <h2 id="module-title" style="margin: 0;">Module Name</h2>
-                </div>
-                <div class="toolbar-actions">
-                    <button class="btn btn-success" onclick="saveDocumentData()" id="btn-save-doc"><i class="fa-solid fa-floppy-disk"></i> Save Document</button>
-                    <button class="btn btn-primary" onclick="triggerPrint()"><i class="fa-solid fa-print"></i> Print / Save PDF</button>
-                </div>
-            </div>
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Sub-Category</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Vendor</th>
+                                    <th>Employee</th>
+                                    <th>GST</th>
+                                    <th>Status</th>
+                                    <th>Receipt</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expenses-tbody">
+                                <tr><td colspan="13" class="text-center">Loading expenses...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
-            <!-- Double Panel Workspace Layout -->
-            <div class="workspace">
-                <!-- Inputs Editor Form Panel (Left) -->
-                <div class="form-section no-print" id="dynamic-form">
-                    <!-- JS will render module inputs here -->
-                </div>
-                
-                <!-- Live Paper Preview Panel (Right) -->
-                <div class="preview-section" id="preview-wrapper">
-                    <!-- Paper sheet will render here -->
-                </div>
-            </div>
-            
-        </section>
+                <!-- 3. INCOME TRACKER VIEW -->
+                <section id="income-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>Income Tracker</h2>
+                            <p>Log client receipts, technology consulting projects, and track invoices outstanding</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-income" onclick="openIncomeModal()"><i class="fa-solid fa-plus"></i> Log Income</button>
+                    </div>
 
-    </main>
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="income-search" placeholder="Search client name, project..." oninput="filterIncome()">
+                        </div>
+                        <div class="filter-controls">
+                            <select id="income-status-filter" onchange="filterIncome()">
+                                <option value="all">All Status</option>
+                                <option value="Paid">Paid (Full)</option>
+                                <option value="Pending">Pending / Partial</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Invoice No</th>
+                                    <th>Client Name</th>
+                                    <th>Project Name</th>
+                                    <th>Amount</th>
+                                    <th>GST (18%)</th>
+                                    <th>Total Value</th>
+                                    <th>Received</th>
+                                    <th>Outstanding</th>
+                                    <th>Payment Date</th>
+                                    <th>Due Date</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="income-tbody">
+                                <tr><td colspan="12" class="text-center">Loading client payments...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 4. EMPLOYEE EXPENSE CLAIMS VIEW -->
+                <section id="claims-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>Expense Claims</h2>
+                            <p>Submit travel, client meetings, food and fuel bills for admin reimbursement approvals</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openClaimModal()"><i class="fa-solid fa-paper-plane"></i> Submit Claim</button>
+                    </div>
+
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Date</th>
+                                    <th>Employee</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Description</th>
+                                    <th>Attachment</th>
+                                    <th>Approval Status</th>
+                                    <th class="text-center" id="claims-actions-header">Manager Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="claims-tbody">
+                                <tr><td colspan="9" class="text-center">Loading expense claims...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 4b. MY SALARY VIEW (Employee Role) -->
+                <section id="my-salary-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>My Salary & Payments</h2>
+                            <p>View your salaries, bonuses, and incentives logged by the Admin</p>
+                        </div>
+                    </div>
+
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Payment Description</th>
+                                    <th>Amount</th>
+                                    <th>Payment Method</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="my-salary-tbody">
+                                <tr><td colspan="5" class="text-center">Loading payments...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 5. VENDORS VIEW -->
+                <section id="vendors-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>Vendor Registry</h2>
+                            <p>Manage office suppliers, contractors, tech subscription billing profiles</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-vendor" onclick="openVendorModal()"><i class="fa-solid fa-plus"></i> Add Vendor</button>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="search-input-wrap">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <input type="text" id="vendor-search" placeholder="Search vendor name, GST..." oninput="filterVendors()">
+                        </div>
+                    </div>
+
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Vendor Name</th>
+                                    <th>Phone</th>
+                                    <th>GST Number</th>
+                                    <th>Address</th>
+                                    <th>Outstanding Balance</th>
+                                    <th>Last Transaction Date</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vendors-tbody">
+                                <tr><td colspan="7" class="text-center">Loading vendors...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 6. SUBSCRIPTION TRACKER VIEW -->
+                <section id="subscriptions-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>SaaS Subscription Tracker</h2>
+                            <p>Log and review recurring renewals (AWS, Vercel, OpenAI, Workspace, etc.)</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-subscription" onclick="openSubscriptionModal()"><i class="fa-solid fa-plus"></i> Track Subscription</button>
+                    </div>
+
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>SaaS / App Name</th>
+                                    <th>Renewal Date</th>
+                                    <th>Mothly Cost</th>
+                                    <th>Yearly Cost</th>
+                                    <th>Reminder Option</th>
+                                    <th>Next Renewal Days</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subscriptions-tbody">
+                                <tr><td colspan="7" class="text-center">Loading subscription list...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 7. ASSET MANAGEMENT VIEW -->
+                <section id="assets-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>Asset Inventory</h2>
+                            <p>Track company hardware assets assigned to employees (Laptops, Monitors, Phones)</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-asset" onclick="openAssetModal()"><i class="fa-solid fa-plus"></i> Register Asset</button>
+                    </div>
+
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Asset Type</th>
+                                    <th>Asset Model/Name</th>
+                                    <th>Serial / Tag Number</th>
+                                    <th>Cost</th>
+                                    <th>Assigned Employee</th>
+                                    <th>Purchase Date</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assets-tbody">
+                                <tr><td colspan="7" class="text-center">Loading assets inventory...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 7b. EMPLOYEES VIEW -->
+                <section id="employees-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>Employees Management</h2>
+                            <p>Manage company employees, roles, and portal credentials</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openEmployeeModal()"><i class="fa-solid fa-plus"></i> Add Employee</button>
+                    </div>
+
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Employee Name</th>
+                                    <th>Role</th>
+                                    <th>Username</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employees-tbody">
+                                <tr><td colspan="5" class="text-center">Loading employees...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 7c. PROJECTS VIEW -->
+                <section id="projects-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>Project Registry & Progress</h2>
+                            <p id="projects-subtitle">Track project schedules, assignments and work completion milestones</p>
+                        </div>
+                        <button class="btn btn-primary" id="btn-add-project" onclick="openProjectModal()"><i class="fa-solid fa-plus"></i> Create Project</button>
+                    </div>
+
+                    <div class="history-table-container">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Client</th>
+                                    <th>Assigned To</th>
+                                    <th>Progress</th>
+                                    <th>Status</th>
+                                    <th>Latest Update / Notes</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="projects-tbody">
+                                <tr><td colspan="7" class="text-center">Loading projects...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- 8. ORIGINAL DOCUMENT BUILDER VIEW (Mapped to Doc Builder tab) -->
+                <section id="dashboard-view" class="tab-view no-print" style="display: none;">
+                    <!-- Welcome Header -->
+                    <div class="dashboard-header">
+                        <h2>Document Builder Portal</h2>
+                        <p>Generate proposals, agreements, contracts, and business document templates.</p>
+                    </div>
+                    
+                    <!-- Statistics Panel -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon icon-blue"><i class="fa-solid fa-file-invoice"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Documents</span>
+                                <h3 id="stat-total-docs">0</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Invoiced</span>
+                                <h3 id="stat-total-invoiced">₹ 0.00</h3>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-yellow"><i class="fa-solid fa-money-bill-transfer"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Transactions Today</span>
+                                <h3 id="stat-today-docs">0</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Chart Section -->
+                    <div class="analytics-section">
+                        <div class="analytics-header">
+                            <div class="analytics-title-group">
+                                <h3><i class="fa-solid fa-chart-column"></i> Activity Overview</h3>
+                                <span class="analytics-subtitle">Monthly document count &amp; invoice revenue (last 6 months)</span>
+                            </div>
+                            <div class="chart-legend">
+                                <span class="legend-item"><span class="legend-dot legend-docs"></span>Documents</span>
+                                <span class="legend-item"><span class="legend-dot legend-revenue"></span>Invoice Revenue</span>
+                            </div>
+                        </div>
+                        <div class="analytics-chart-wrap">
+                            <canvas id="analytics-chart"></canvas>
+                            <div id="analytics-empty" class="analytics-empty" style="display:none;">
+                                <i class="fa-solid fa-chart-simple"></i>
+                                <p>No data yet — create some documents to see analytics.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Modules Grid -->
+                    <div class="section-title">
+                        <h3>Document Modules</h3>
+                        <span class="divider"></span>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="card card-quotation" onclick="openModule('quotation')" id="card-quotation">
+                            <div class="card-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                            <h3>Project Proposal / Quote</h3>
+                            <p>Create project proposals, custom specs & cost estimates</p>
+                        </div>
+                        <div class="card card-invoice" onclick="openModule('invoice')" id="card-invoice">
+                            <div class="card-icon"><i class="fa-solid fa-receipt"></i></div>
+                            <h3>Billing Invoice</h3>
+                            <p>Generate professional 18% GST tax invoices for tech services</p>
+                        </div>
+                        <div class="card card-receipt" onclick="openModule('receipt')" id="card-receipt">
+                            <div class="card-icon"><i class="fa-solid fa-file-signature"></i></div>
+                            <h3>Receipt Slip</h3>
+                            <p>Print client payment receipts for tech project milestones</p>
+                        </div>
+                        <div class="card card-voucher" onclick="openModule('voucher')" id="card-voucher">
+                            <div class="card-icon"><i class="fa-solid fa-cash-register"></i></div>
+                            <h3>Cash Voucher</h3>
+                            <p>Log and print office petty cash voucher receipts</p>
+                        </div>
+                        <div class="card card-labour" onclick="openModule('labour')" id="card-labour">
+                            <div class="card-icon"><i class="fa-solid fa-laptop-code"></i></div>
+                            <h3>Developer Contract</h3>
+                            <p>Draft contract agreements for developers & designers</p>
+                        </div>
+                        <div class="card card-handover" onclick="openModule('handover')" id="card-handover">
+                            <div class="card-icon"><i class="fa-solid fa-circle-check"></i></div>
+                            <h3>Project Handover</h3>
+                            <p>Issue formal software deployment & sign-off handovers</p>
+                        </div>
+                        <div class="card card-expense" onclick="openModule('expense')" id="card-expense">
+                            <div class="card-icon"><i class="fa-solid fa-credit-card"></i></div>
+                            <h3>Office Expense</h3>
+                            <p>Track server hosting, SaaS tools, and team expense claims</p>
+                        </div>
+                        <div class="card card-letterpad" onclick="openModule('letterpad')" id="card-letterpad">
+                            <div class="card-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+                            <h3>Letter Pad</h3>
+                            <p>Write official letters on company letterhead</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Document History Table -->
+                    <div class="history-section">
+                        <div class="history-header">
+                            <div class="title-wrap">
+                                <h3>Saved Document Registry</h3>
+                                <p>Search, review, reload, or delete previously created documents</p>
+                            </div>
+                            <div class="filter-controls">
+                                <div class="search-input-wrap">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="text" id="history-search" placeholder="Search Client / Doc No..." oninput="filterHistoryTable()">
+                                </div>
+                                <select id="history-filter" onchange="filterHistoryTable()">
+                                    <option value="all">All Modules</option>
+                                    <option value="quotation">Project Proposal / Quote</option>
+                                    <option value="invoice">Billing Invoice</option>
+                                    <option value="receipt">Receipt Slip</option>
+                                    <option value="voucher">Cash Voucher</option>
+                                    <option value="labour">Developer Contract</option>
+                                    <option value="handover">Project Handover</option>
+                                    <option value="expense">Office Expense</option>
+                                    <option value="letterpad">Letter Pad</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="history-table-container">
+                            <table class="history-table" id="registry-table">
+                                <thead>
+                                    <tr>
+                                        <th width="15%">Document Type</th>
+                                        <th width="15%">Document No</th>
+                                        <th width="30%">Client / Payee Name</th>
+                                        <th width="15%">Doc Date</th>
+                                        <th width="10%">Created</th>
+                                        <th width="15%" class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="history-tbody">
+                                    <tr>
+                                        <td colspan="6" class="text-center empty-history">
+                                            <i class="fa-solid fa-folder-open"></i> Loading records...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 9. REPORTS VIEW -->
+                <section id="reports-view" class="tab-view no-print" style="display: none;">
+                    <div class="section-title">
+                        <div>
+                            <h2>Financial Reports</h2>
+                            <p>Generate detailed sheets for taxes, profit &amp; loss statements, balance sheet summaries</p>
+                        </div>
+                    </div>
+
+                    <div class="filter-bar">
+                        <div class="filter-controls" style="flex-wrap: wrap; gap: 15px;">
+                            <div class="form-group" style="margin-bottom:0; width: 220px;">
+                                <label style="margin-bottom: 4px;">Report Type</label>
+                                <select id="report-type-select" onchange="loadReportFields()">
+                                    <option value="monthly-expense">Monthly Expense Statement</option>
+                                    <option value="yearly-expense">Yearly Expense Statement</option>
+                                    <option value="category">Category-wise Report</option>
+                                    <option value="employee">Employee Spending Claim Report</option>
+                                    <option value="vendor">Vendor Outstandings Report</option>
+                                    <option value="gst">GST Tax Report</option>
+                                    <option value="cash-flow">Cash Flow Statement</option>
+                                    <option value="profit-loss">Profit &amp; Loss Statement</option>
+                                    <option value="balance-sheet">Balance Sheet</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0; width: 140px;" id="report-start-group">
+                                <label style="margin-bottom: 4px;">Start Date</label>
+                                <input type="date" id="report-start-date">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0; width: 140px;" id="report-end-group">
+                                <label style="margin-bottom: 4px;">End Date</label>
+                                <input type="date" id="report-end-date">
+                            </div>
+                            <button class="btn btn-primary" onclick="generateReport()" style="align-self: flex-end;"><i class="fa-solid fa-gears"></i> Generate</button>
+                            <button class="btn btn-secondary" onclick="printReport()" style="align-self: flex-end;"><i class="fa-solid fa-print"></i> Print Report</button>
+                        </div>
+                    </div>
+
+                    <!-- Printable A4 Report Canvas Sheet -->
+                    <div class="report-print-wrapper">
+                        <div class="report-sheet" id="report-sheet-canvas">
+                            <div class="report-sheet-empty">
+                                <i class="fa-solid fa-receipt"></i>
+                                <p>Select filters and click "Generate" to compile report data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 10. DETAILED ANALYTICS VIEW -->
+                <section id="analytics-view" class="tab-view no-print" style="display: none;">
+                    <div class="dashboard-header">
+                        <h2>Financial Analytics</h2>
+                        <p>Deeper trends, cash flows, runway forecasts, burn rates, and financial efficiency insights.</p>
+                    </div>
+
+                    <!-- Key Financial Indicators -->
+                    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+                        <div class="stat-card">
+                            <div class="stat-icon icon-red"><i class="fa-solid fa-fire"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Monthly Burn Rate</span>
+                                <h3 id="anal-burn-rate">₹ 0.00</h3>
+                                <p class="stat-desc" style="font-size:12px; color:var(--text-secondary);">Average expense outflow over last 3 months</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-green"><i class="fa-solid fa-plane-departure"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Financial Runway</span>
+                                <h3 id="anal-runway">0 Months</h3>
+                                <p class="stat-desc" style="font-size:12px; color:var(--text-secondary);">Survival period based on cash &amp; bank reserves</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon icon-purple"><i class="fa-solid fa-arrow-up-right-dots"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Highest Spending Category</span>
+                                <h3 id="anal-highest-cat">-</h3>
+                                <p class="stat-desc" id="anal-highest-cat-val" style="font-size:12px; color:var(--text-secondary);">₹ 0.00 total expense</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-columns-grid" style="margin-top:20px;">
+                        <div class="dash-column-left">
+                            <div class="analytics-section">
+                                <div class="analytics-header">
+                                    <h3><i class="fa-solid fa-chart-line"></i> Income vs Expense Comparison</h3>
+                                </div>
+                                <div class="analytics-chart-wrap" style="position: relative; height:320px;">
+                                    <canvas id="analytics-comparison-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="dash-column-right">
+                            <div class="analytics-section">
+                                <div class="analytics-header">
+                                    <h3><i class="fa-solid fa-wallet"></i> Cash vs Bank Balance Distribution</h3>
+                                </div>
+                                <div class="analytics-chart-wrap" style="position: relative; height:320px; display: flex; justify-content: center; align-items: center;">
+                                    <canvas id="analytics-distribution-chart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Extreme Expense Metrics List -->
+                    <div class="history-section" style="margin-top: 20px;">
+                        <div class="history-header">
+                            <h3><i class="fa-solid fa-scale-unbalanced-flip"></i> Spending Highlights</h3>
+                        </div>
+                        <div class="stats-grid" style="margin-top:15px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));">
+                            <div class="stat-card" style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15);">
+                                <div class="stat-info">
+                                    <span class="stat-label" style="color:var(--danger); font-weight:600;"><i class="fa-solid fa-angles-up"></i> Absolute Highest Expense Logged</span>
+                                    <h4 id="highlight-highest-exp" style="margin-top:8px; font-size:18px;">-</h4>
+                                    <p id="highlight-highest-exp-desc" style="font-size:12px; color:var(--text-secondary); margin-top:4px;">No expense data</p>
+                                </div>
+                            </div>
+                            <div class="stat-card" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15);">
+                                <div class="stat-info">
+                                    <span class="stat-label" style="color:var(--success); font-weight:600;"><i class="fa-solid fa-angles-down"></i> Lowest Expense Logged</span>
+                                    <h4 id="highlight-lowest-exp" style="margin-top:8px; font-size:18px;">-</h4>
+                                    <p id="highlight-lowest-exp-desc" style="font-size:12px; color:var(--text-secondary); margin-top:4px;">No expense data</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ORIGINAL MODULE WORKSPACE VIEW -->
+                <section id="module-container" class="module-view" style="display: none;">
+                    <!-- Workspace Toolbar -->
+                    <div class="toolbar no-print">
+                        <button class="btn btn-secondary" onclick="switchPortalTab('docs')"><i class="fa-solid fa-arrow-left"></i> Doc Templates</button>
+                        <div class="module-info-title">
+                            <span id="module-icon-indicator"><i class="fa-solid fa-file-invoice"></i></span>
+                            <h2 id="module-title" style="margin: 0;">Module Name</h2>
+                        </div>
+                        <div class="toolbar-actions">
+                            <button class="btn btn-success" onclick="saveDocumentData()" id="btn-save-doc"><i class="fa-solid fa-floppy-disk"></i> Save Document</button>
+                            <button class="btn btn-primary" onclick="triggerPrint()"><i class="fa-solid fa-print"></i> Print / Save PDF</button>
+                        </div>
+                    </div>
+
+                    <!-- Double Panel Workspace Layout -->
+                    <div class="workspace">
+                        <!-- Inputs Editor Form Panel (Left) -->
+                        <div class="form-section no-print" id="dynamic-form">
+                            <!-- JS will render module inputs here -->
+                        </div>
+                        
+                        <!-- Live Paper Preview Panel (Right) -->
+                        <div class="preview-section" id="preview-wrapper">
+                            <!-- Paper sheet will render here -->
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
 
     <!-- RESTORE DATABASE MODAL -->
     <div id="restore-modal" class="modal-overlay no-print">
@@ -255,11 +914,612 @@
         </div>
     </div>
 
-    <!-- Notification Toast -->
-    <div id="toast" class="toast-notification no-print">
-        <div class="toast-content">
-            <span class="toast-icon" id="toast-icon"><i class="fa-solid fa-circle-check"></i></span>
-            <span class="toast-message" id="toast-message">Message placeholder</span>
+    <!-- 1. EXPENSE CREATION/EDIT MODAL -->
+    <div id="expense-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="expense-modal-title"><i class="fa-solid fa-wallet"></i> Log Expense</h3>
+                <button class="close-btn" onclick="closeExpenseModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="expense-form" onsubmit="saveExpenseForm(event)">
+                    <input type="hidden" id="exp-id-input">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="exp-date-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="exp-amount-input" step="0.01" min="0" required oninput="calculateGstAmount()">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="exp-category-input" required onchange="populateSubCategories(this.value)">
+                                <option value="Office">Office</option>
+                                <option value="Employees">Employees</option>
+                                <option value="Marketing">Marketing</option>
+                                <option value="Development">Development</option>
+                                <option value="Operations">Operations</option>
+                                <option value="Miscellaneous">Miscellaneous</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Sub-Category</label>
+                            <select id="exp-subcategory-input" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" id="exp-description-input" required placeholder="SaaS API billing, team lunch, fuel claims...">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Payment Method</label>
+                            <select id="exp-method-input" required>
+                                <option value="Cash">Cash</option>
+                                <option value="Bank">Bank Transfer</option>
+                                <option value="UPI">UPI (GPay/PhonePe)</option>
+                                <option value="Card">Corporate Card</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Vendor</label>
+                            <input type="text" id="exp-vendor-input" placeholder="e.g. AWS, Tea Shop, Landlord">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Employee Name</label>
+                            <select id="exp-employee-input" required>
+                                <option value="Partha">Partha (CEO)</option>
+                                <option value="Sarat">Sarat (Admin)</option>
+                                <option value="Ramesh">Ramesh (Senior Dev)</option>
+                                <option value="Suresh">Suresh (Marketing)</option>
+                                <option value="Anita">Anita (Accountant)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="exp-status-input" required>
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>GST Applicable?</label>
+                            <select id="exp-gst-input" onchange="toggleGstInput(this.value)">
+                                <option value="No">No</option>
+                                <option value="Yes">Yes</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="gst-amount-group" style="display:none;">
+                            <label>GST Amount (₹)</label>
+                            <input type="number" id="exp-gst-amount-input" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Bill Attachment (Image/PDF)</label>
+                        <div class="file-upload-box" style="padding: 15px;">
+                            <i class="fa-solid fa-file-arrow-up" style="font-size:24px;"></i>
+                            <input type="file" id="exp-file-input" accept="image/*,application/pdf" onchange="uploadReceiptFile('exp', event)">
+                            <div class="file-details" id="exp-file-details">Upload bill copy or drag here</div>
+                            <input type="hidden" id="exp-bill-path-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes / Remarks</label>
+                        <textarea id="exp-notes-input" rows="2" placeholder="Any additional information..."></textarea>
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeExpenseModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Expense</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. INCOME LOG/EDIT MODAL -->
+    <div id="income-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="income-modal-title"><i class="fa-solid fa-sack-dollar"></i> Log Client Income</h3>
+                <button class="close-btn" onclick="closeIncomeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="income-form" onsubmit="saveIncomeForm(event)">
+                    <input type="hidden" id="inc-id-input">
+                    <div class="form-group">
+                        <label>Client / Company Name</label>
+                        <input type="text" id="inc-client-input" required placeholder="e.g. Acme Corp Inc">
+                    </div>
+                    <div class="form-group">
+                        <label>Project Name</label>
+                        <input type="text" id="inc-project-input" required placeholder="e.g. Mobile E-commerce App">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Invoice Number</label>
+                            <input type="text" id="inc-invoice-input" required placeholder="e.g. INV-0045">
+                        </div>
+                        <div class="form-group">
+                            <label>Amount Excl. GST (₹)</label>
+                            <input type="number" id="inc-amount-input" step="0.01" min="0" required oninput="calculateIncomeTotals()">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>GST Amount (18% if applied)</label>
+                            <input type="number" id="inc-gst-input" step="0.01" min="0" oninput="calculateIncomeTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label>Total Project Value (₹)</label>
+                            <input type="number" id="inc-total-input" readonly style="background:#27272a;">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Payment Received (₹)</label>
+                            <input type="number" id="inc-received-input" step="0.01" min="0" required oninput="calculateIncomeTotals()">
+                        </div>
+                        <div class="form-group">
+                            <label>Pending Outstanding (₹)</label>
+                            <input type="number" id="inc-pending-input" readonly style="background:#27272a;">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Payment Date (if received)</label>
+                            <input type="date" id="inc-paydate-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" id="inc-duedate-input" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeIncomeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Income</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. EMPLOYEE CLAIM MODAL -->
+    <div id="claim-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-invoice-dollar"></i> Submit Expense Claim</h3>
+                <button class="close-btn" onclick="closeClaimModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="claim-form" onsubmit="saveClaimForm(event)">
+                    <input type="hidden" id="claim-id-input">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date of Outlay</label>
+                            <input type="date" id="claim-date-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount (₹)</label>
+                            <input type="number" id="claim-amount-input" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Claim Type</label>
+                            <select id="claim-type-input" required>
+                                <option value="Travel">Travel</option>
+                                <option value="Food">Food</option>
+                                <option value="Client Meeting">Client Meeting</option>
+                                <option value="Accommodation">Accommodation</option>
+                                <option value="Fuel">Fuel</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="claim-employee-group">
+                            <label>Employee Name</label>
+                            <select id="claim-employee-input">
+                                <option value="Partha">Partha (CEO)</option>
+                                <option value="Sarat">Sarat (Admin)</option>
+                                <option value="Ramesh">Ramesh (Senior Dev)</option>
+                                <option value="Suresh">Suresh (Marketing)</option>
+                                <option value="Anita">Anita (Accountant)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason / Description</label>
+                        <input type="text" id="claim-description-input" required placeholder="e.g. Travel to client office in Bangalore">
+                    </div>
+                    <div class="form-group">
+                        <label>Receipt File (Image/PDF)</label>
+                        <div class="file-upload-box" style="padding: 15px;">
+                            <i class="fa-solid fa-receipt" style="font-size:24px;"></i>
+                            <input type="file" id="claim-file-input" accept="image/*,application/pdf" onchange="uploadReceiptFile('claim', event)">
+                            <div class="file-details" id="claim-file-details">Upload receipt bill copy</div>
+                            <input type="hidden" id="claim-bill-path-input">
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeClaimModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Claim</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. VENDOR MODAL -->
+    <div id="vendor-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="vendor-modal-title"><i class="fa-solid fa-shop"></i> Store Vendor Profile</h3>
+                <button class="close-btn" onclick="closeVendorModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="vendor-form" onsubmit="saveVendorForm(event)">
+                    <input type="hidden" id="vendor-id-input">
+                    <div class="form-group">
+                        <label>Vendor / Supplier Name</label>
+                        <input type="text" id="vendor-name-input" required placeholder="e.g. DigitalOcean Inc">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="text" id="vendor-phone-input" placeholder="e.g. +91 99944 88812">
+                        </div>
+                        <div class="form-group">
+                            <label>GST Number</label>
+                            <input type="text" id="vendor-gst-input" placeholder="e.g. 33AAAAA0000A1Z0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="vendor-address-input" rows="2" placeholder="Office physical address details..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Outstanding Balance (₹)</label>
+                            <input type="number" id="vendor-balance-input" step="0.01" min="0" value="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Last Transaction Date</label>
+                            <input type="date" id="vendor-lastdate-input">
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeVendorModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Vendor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. SUBSCRIPTION MODAL -->
+    <div id="subscription-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="subscription-modal-title"><i class="fa-solid fa-rotate"></i> Track SaaS Subscription</h3>
+                <button class="close-btn" onclick="closeSubscriptionModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="subscription-form" onsubmit="saveSubscriptionForm(event)">
+                    <input type="hidden" id="sub-id-input">
+                    <div class="form-group">
+                        <label>SaaS Tool / Application Name</label>
+                        <input type="text" id="sub-name-input" required placeholder="OpenAI, Vercel, Google Workspace...">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Monthly Cost (₹)</label>
+                            <input type="number" id="sub-monthly-input" step="0.01" min="0" required oninput="calculateSubscriptionYearly()">
+                        </div>
+                        <div class="form-group">
+                            <label>Estimated Yearly Cost (₹)</label>
+                            <input type="number" id="sub-yearly-input" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Next Renewal Date</label>
+                            <input type="date" id="sub-renewal-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Notification Reminder</label>
+                            <select id="sub-reminder-input" required>
+                                <option value="1 day before">1 day before</option>
+                                <option value="3 days before">3 days before</option>
+                                <option value="7 days before">7 days before</option>
+                                <option value="14 days before">14 days before</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeSubscriptionModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Track Subscription</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. ASSET MODAL -->
+    <div id="asset-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="asset-modal-title"><i class="fa-solid fa-laptop-house"></i> Inventory Asset Registration</h3>
+                <button class="close-btn" onclick="closeAssetModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="asset-form" onsubmit="saveAssetForm(event)">
+                    <input type="hidden" id="asset-id-input">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Asset Model/Name</label>
+                            <input type="text" id="asset-name-input" required placeholder="e.g. MacBook Pro M3 Max 16''">
+                        </div>
+                        <div class="form-group">
+                            <label>Asset Type</label>
+                            <select id="asset-type-input" required>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Monitor">Monitor</option>
+                                <option value="Phones">Phones</option>
+                                <option value="Printers">Printers</option>
+                                <option value="Furniture">Furniture</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Serial / Tag Number</label>
+                            <input type="text" id="asset-serial-input" required placeholder="e.g. C02DFX38Q05D">
+                        </div>
+                        <div class="form-group">
+                            <label>Purchase Price (₹)</label>
+                            <input type="number" id="asset-cost-input" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Assigned Employee</label>
+                            <select id="asset-assigned-input" required>
+                                <option value="Not Assigned">Not Assigned (In Stock)</option>
+                                <option value="Partha">Partha (CEO)</option>
+                                <option value="Sarat">Sarat (Admin)</option>
+                                <option value="Ramesh">Ramesh (Senior Dev)</option>
+                                <option value="Suresh">Suresh (Marketing)</option>
+                                <option value="Anita">Anita (Accountant)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Purchase Date</label>
+                            <input type="date" id="asset-purchase-input" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeAssetModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Asset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6b. EMPLOYEE CREATION/EDIT MODAL -->
+    <div id="employee-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="employee-modal-title"><i class="fa-solid fa-user-plus"></i> Add Employee</h3>
+                <button class="close-btn" onclick="closeEmployeeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="employee-form" onsubmit="saveEmployeeForm(event)">
+                    <input type="hidden" id="emp-id-input">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="emp-name-input" required placeholder="e.g. Ramesh Kumar">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Role</label>
+                            <select id="emp-role-input" required>
+                                <option value="Employee">Employee</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Accountant">Accountant</option>
+                                <option value="Super Admin">Super Admin</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="emp-username-input" required placeholder="e.g. ramesh">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="emp-password-input" required placeholder="••••••••">
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Employee</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6c. PROJECT MODAL (Admin creation/editing) -->
+    <div id="project-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="project-modal-title"><i class="fa-solid fa-diagram-project"></i> Create Project</h3>
+                <button class="close-btn" onclick="closeProjectModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="project-form" onsubmit="saveProjectForm(event)">
+                    <input type="hidden" id="project-id-input">
+                    <div class="form-group">
+                        <label>Project Name</label>
+                        <input type="text" id="project-name-input" required placeholder="e.g. CRM Website Development">
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <input type="text" id="project-desc-input" required placeholder="e.g. Customer Relationship Management application coding">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Client Name</label>
+                            <input type="text" id="project-client-input" required placeholder="e.g. Rturox Tech">
+                        </div>
+                        <div class="form-group">
+                            <label>Assigned Employee</label>
+                            <select id="project-assigned-input" required>
+                                <!-- Dynamically populated -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Initial Progress (%)</label>
+                            <input type="number" id="project-progress-input" required min="0" max="100" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="project-status-input" required>
+                                <option value="Not Started">Not Started</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="On Hold">On Hold</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Initial Update Notes</label>
+                        <input type="text" id="project-update-input" placeholder="e.g. Requirements specification phase started.">
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeProjectModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6d. EMPLOYEE PROGRESS UPDATE MODAL -->
+    <div id="progress-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-spinner"></i> Update Project Progress</h3>
+                <button class="close-btn" onclick="closeProgressModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="progress-form" onsubmit="saveProgressForm(event)">
+                    <input type="hidden" id="prog-project-id">
+                    <div class="form-group">
+                        <label>Project Name</label>
+                        <input type="text" id="prog-project-name" readonly style="background: var(--bg-surface-hover); color: var(--text-muted); border: 1px solid var(--border-color);">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Current Progress (%)</label>
+                            <input type="number" id="prog-percent-input" required min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select id="prog-status-input" required>
+                                <option value="Not Started">Not Started</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="On Hold">On Hold</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Latest Progress / Update Notes</label>
+                        <input type="text" id="prog-update-input" required placeholder="Describe what tasks were completed or current hurdles">
+                    </div>
+                    <div class="modal-footer" style="padding: 10px 0 0 0;">
+                        <button type="button" class="btn btn-secondary" onclick="closeProgressModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Progress</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. SETTINGS MODAL -->
+    <div id="settings-modal" class="modal-overlay no-print">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-pen-to-square"></i> Set Starting Balances</h3>
+                <button class="close-btn" onclick="closeSettingsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="settings-form" onsubmit="saveSettingsForm(event)">
+                    <div class="form-group">
+                        <label>Initial Cash in Hand Balance (₹)</label>
+                        <input type="number" id="settings-cash-input" step="0.01" min="0" required placeholder="50000.00">
+                        <small style="color:var(--text-secondary); font-size:11px; display:block; margin-top:4px;">Starting petty cash balance before transaction calculations</small>
+                    </div>
+                    <div class="form-group" style="margin-top:15px;">
+                        <label>Initial Bank Reserves Balance (₹)</label>
+                        <input type="number" id="settings-bank-input" step="0.01" min="0" required placeholder="500000.00">
+                        <small style="color:var(--text-secondary); font-size:11px; display:block; margin-top:4px;">Starting bank balance before transaction calculations</small>
+                    </div>
+                    <div class="modal-footer" style="padding: 15px 0 0 0; margin-top:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeSettingsModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Balances</button>
+                    </div>
+                </form>
+                
+                <!-- Audit Logs List -->
+                <div style="margin-top: 15px;">
+                    <h4 style="margin-bottom: 8px; font-size: 13px; color: var(--text-primary); display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-clock-rotate-left" style="color: var(--primary);"></i> Balance Modification History</h4>
+                    <div style="max-height: 180px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-color); border-radius: 6px;">
+                        <table class="report-table-print" style="font-size: 11px; text-align: left; width: 100%; border-collapse: collapse; margin: 0;">
+                            <thead>
+                                <tr style="background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid var(--border-color);">
+                                    <th style="padding: 6px 4px; color: var(--text-secondary);">Date</th>
+                                    <th style="padding: 6px 4px; color: var(--text-secondary);">Changed By</th>
+                                    <th style="padding: 6px 4px; text-align: right; color: var(--text-secondary);">Cash (Old ➔ New)</th>
+                                    <th style="padding: 6px 4px; text-align: right; color: var(--text-secondary);">Bank (Old ➔ New)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="balance-history-tbody">
+                                <!-- Loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. CONFIRMATION MODAL -->
+    <div id="confirm-modal" class="modal-overlay no-print" style="z-index: 2000; display: none;">
+        <div class="modal-card" style="max-width: 400px; padding: 0;">
+            <div class="modal-header" style="border: none; padding-bottom: 0;">
+                <h3 id="confirm-title" style="color: var(--danger);"><i class="fa-solid fa-circle-exclamation"></i> Confirm Action</h3>
+                <button class="close-btn" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding-top: 10px; padding-bottom: 15px; color: var(--text-secondary);">
+                <p id="confirm-message">Are you sure you want to perform this action?</p>
+            </div>
+            <div class="modal-footer" style="padding: 0 20px 20px 20px; display: flex; justify-content: flex-end; gap: 10px; border: none; background: transparent;">
+                <button type="button" class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+                <button type="button" id="confirm-ok-btn" class="btn btn-danger">Confirm</button>
+            </div>
         </div>
     </div>
 
@@ -267,15 +1527,15 @@
     <div id="login-overlay" class="login-overlay no-print" style="display: none;">
         <div class="login-card">
             <div class="login-logo-wrap">
-                <img src="logo.png" alt="Rturox Logo">
+                <img src="logo.png" alt="Orbenyx Logo">
             </div>
-            <h2>Rturox Tech CRM</h2>
-            <p>Enter administrator credentials to unlock</p>
+            <h2>Orbenyx CRM</h2>
+            <p>Enter credentials to unlock Financial Portal</p>
             <div id="login-error-msg" class="login-error-msg" style="display: none;"></div>
             <form id="login-form" onsubmit="handleAdminLogin(event)">
                 <div class="form-group">
                     <label>Username</label>
-                    <input type="text" id="login-username" required placeholder="admin" autocomplete="username">
+                    <input type="text" id="login-username" required placeholder="admin / employee / accountant" autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label>Password</label>
@@ -286,6 +1546,17 @@
         </div>
     </div>
 
+    <!-- Toast Notifications Container -->
+    <div id="toast" class="toast-notification">
+        <div class="toast-content">
+            <span id="toast-icon"></span>
+            <span id="toast-message"></span>
+        </div>
+    </div>
+
+    <!-- Chart.js and Custom Modules -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="index.js"></script>
+    <script src="expenses.js"></script>
 </body>
 </html>

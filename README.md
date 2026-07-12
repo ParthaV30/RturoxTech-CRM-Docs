@@ -1,12 +1,12 @@
-# Rturox Tech — Office Portal & Document Generator
+# Orbenyx — Office Portal & Document Generator
 
-> A fully featured, self-hosted office management and document generation system built for **Rturox Tech**, a software studio based in Vadavalli, Coimbatore.
+> A fully featured, self-hosted office management and document generation system built for **Orbenyx**, a software studio based in Vadavalli, Coimbatore.
 
 ---
 
 ## 📋 Overview
 
-The Rturox Tech Office Portal is a **single-page web application** backed by a Node.js + Express server. It allows the team to create, preview, save, edit, reprint, and delete professional business documents — all rendered as pixel-perfect A4/slip previews directly in the browser.
+The Orbenyx Office Portal is a **single-page web application** backed by a Node.js + Express server. It allows the team to create, preview, save, edit, reprint, and delete professional business documents — all rendered as pixel-perfect A4/slip previews directly in the browser.
 
 ---
 
@@ -20,7 +20,7 @@ The Rturox Tech Office Portal is a **single-page web application** backed by a N
 | 💾 Document Registry | Save, edit, reprint, and delete all documents from a searchable table |
 | 🗄️ Dual Database | Auto-switches between SQLite (primary) and JSON file (fallback) |
 | 📦 Backup & Restore | One-click database download and upload-based restore |
-| 🏢 Rturox Branding | Company logo, violet/purple dark theme, digital signatures |
+| 🏢 Orbenyx Branding | Company logo, violet/purple dark theme, digital signatures |
 
 ---
 
@@ -49,7 +49,7 @@ d:/CRM/
     ├── index.html         # SPA layout — dashboard, modules, modals, login overlay
     ├── index.css          # Styling — dark theme, A4 print rules, login card
     ├── index.js           # Client engine — auth, templates, API calls, preview renderers
-    └── logo.png           # Rturox Tech company logo
+    └── logo.png           # Orbenyx company logo
 ```
 
 ---
@@ -80,7 +80,7 @@ The server starts on **port 3000** by default.
 
 ```
 ==================================================
-Rturox Tech Portal is running on port 3000
+Orbenyx Portal is running on port 3000
 Database Mode: SQLite Database Connected
 Access Portal locally at: http://localhost:3000
 ==================================================
@@ -99,7 +99,7 @@ The portal is protected by an admin login screen on every visit.
 | Field | Default Value |
 |---|---|
 | **Username** | `admin` |
-| **Password** | `rturox@123` |
+| **Password** | `` |
 
 ### Changing Credentials
 
@@ -186,7 +186,7 @@ Click **Restore DB** in the topbar, select your previously downloaded backup fil
 - **Primary Color:** `#a855f7` (Violet/Purple)
 - **Accent Color:** `#7c3aed` (Indigo)
 - **Background:** `#09090b` (Zinc Black)
-- **Company:** Rturox Tech, Vadavalli, Coimbatore – 641046
+- **Company:** Orbenyx, Vadavalli, Coimbatore – 641046
 - **Email:** rturoxtechnology@gmail.com
 - **Phone:** +91 63811 69124
 
@@ -194,8 +194,8 @@ Click **Restore DB** in the topbar, select your previously downloaded backup fil
 
 ## 📞 Support
 
-For issues or customizations, contact the Rturox Tech development team at [rturoxtechnology@gmail.com](mailto:rturoxtechnology@gmail.com).
+For issues or customizations, contact the Orbenyx development team at [rturoxtechnology@gmail.com](mailto:rturoxtechnology@gmail.com).
 
 ---
 
-*Built with ❤️ for Rturox Tech — Coimbatore, Tamil Nadu.*
+*Built with ❤️ for Orbenyx — Coimbatore, Tamil Nadu.*
