@@ -1709,6 +1709,31 @@ header.topbar {
     box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.2);
 }
 
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 42px !important;
+}
+
+.toggle-password-icon {
+    position: absolute;
+    right: 14px;
+    cursor: pointer;
+    color: #a1a1aa;
+    font-size: 1.05rem;
+    transition: color 0.2s ease;
+}
+
+.toggle-password-icon:hover {
+    color: #ffffff;
+}
+
 .login-btn {
     width: 100%;
     padding: 13px;

@@ -28,6 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Authentication Helpers
+window.togglePasswordVisibility = function(inputId, iconEl) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        iconEl.classList.remove('fa-eye-slash');
+        iconEl.classList.add('fa-eye');
+    } else {
+        input.type = 'password';
+        iconEl.classList.remove('fa-eye');
+        iconEl.classList.add('fa-eye-slash');
+    }
+};
+
 function checkAdminAuth() {
     const token = localStorage.getItem('rturox_admin_token');
     const overlay = document.getElementById('login-overlay');
