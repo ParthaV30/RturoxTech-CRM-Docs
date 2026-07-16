@@ -8,7 +8,7 @@
     <!-- Google Fonts for premium look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Dancing+Script:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <!-- FontAwesome for modern icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -37,9 +37,12 @@
             </div>
             
             <nav class="sidebar-nav">
+                <div class="nav-section-label">Overview</div>
                 <a href="javascript:void(0)" class="nav-item active" id="nav-dashboard" onclick="switchPortalTab('dashboard')">
                     <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
                 </a>
+
+                <div class="nav-section-label">Finance</div>
                 <a href="javascript:void(0)" class="nav-item" id="nav-expenses" onclick="switchPortalTab('expenses')">
                     <i class="fa-solid fa-wallet"></i> <span>Expenses</span>
                 </a>
@@ -52,6 +55,8 @@
                 <a href="javascript:void(0)" class="nav-item" id="nav-my-salary" onclick="switchPortalTab('my-salary')" style="display: none;">
                     <i class="fa-solid fa-money-check-dollar"></i> <span>My Salary</span>
                 </a>
+
+                <div class="nav-section-label">Operations</div>
                 <a href="javascript:void(0)" class="nav-item" id="nav-vendors" onclick="switchPortalTab('vendors')">
                     <i class="fa-solid fa-shop"></i> <span>Vendors</span>
                 </a>
@@ -67,6 +72,8 @@
                 <a href="javascript:void(0)" class="nav-item" id="nav-employees" onclick="switchPortalTab('employees')">
                     <i class="fa-solid fa-users-gear"></i> <span>Employees</span>
                 </a>
+
+                <div class="nav-section-label">Workspace</div>
                 <a href="javascript:void(0)" class="nav-item" id="nav-docs" onclick="switchPortalTab('docs')">
                     <i class="fa-solid fa-file-invoice"></i> <span>Doc Builder</span>
                 </a>
@@ -1480,6 +1487,11 @@
                         <input type="number" id="settings-bank-input" step="0.01" min="0" required placeholder="500000.00">
                         <small style="color:var(--text-secondary); font-size:11px; display:block; margin-top:4px;">Starting bank balance before transaction calculations</small>
                     </div>
+                    <div class="form-group" style="margin-top:15px;">
+                        <label>Gemini API Key</label>
+                        <input type="password" id="settings-gemini-api-key" placeholder="Enter Gemini API Key (AI Assistant)">
+                        <small style="color:var(--text-secondary); font-size:11px; display:block; margin-top:4px;">Required for the Chat Assistant Sidebar. Get a key from Google AI Studio.</small>
+                    </div>
                     <div class="modal-footer" style="padding: 15px 0 0 0; margin-top:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px;">
                         <button type="button" class="btn btn-secondary" onclick="closeSettingsModal()">Cancel</button>
                         <button type="submit" class="btn btn-primary">Save Balances</button>
@@ -1560,9 +1572,50 @@
         </div>
     </div>
 
+    <!-- Floating AI Chat Trigger Button -->
+    <button id="ai-chat-toggle" class="ai-chat-toggle no-print" onclick="toggleAIChat()" style="display: none;" title="Toggle AI Assistant">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </button>
+
+    <!-- AI Chat Assistant Sidebar Drawer -->
+    <div id="ai-chat-sidebar" class="ai-chat-sidebar no-print">
+        <div class="ai-chat-header">
+            <div class="ai-chat-title">
+                <i class="fa-solid fa-robot"></i>
+                <div>
+                    <h3>Orbenyx AI</h3>
+                    <span class="ai-status"><span class="status-dot"></span> Online</span>
+                </div>
+            </div>
+            <button class="ai-close-btn" onclick="toggleAIChat()">&times;</button>
+        </div>
+        
+        <div id="ai-key-warning" class="ai-warning-banner" style="display: none;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Gemini API Key is not configured. Please add it in <a href="javascript:void(0)" onclick="openSettingsModal(); toggleAIChat();">Settings</a>.</span>
+        </div>
+
+        <div id="ai-chat-messages" class="ai-chat-messages">
+            <!-- Messages will be rendered here dynamically -->
+        </div>
+
+        <div class="ai-chat-suggestions">
+            <button class="suggestion-chip" onclick="askAISuggestion('Calculate our total net profit.')">Net Profit Summary</button>
+            <button class="suggestion-chip" onclick="askAISuggestion('List active projects and progress.')">Project Progress</button>
+            <button class="suggestion-chip" onclick="askAISuggestion('Summarize expenses this month.')">Monthly Expenses</button>
+            <button class="suggestion-chip" onclick="askAISuggestion('Search documents for client Orbenyx.')">Search Docs</button>
+        </div>
+
+        <form id="ai-chat-form" class="ai-chat-input-area" onsubmit="sendAIMessage(event)">
+            <input type="text" id="ai-chat-input" placeholder="Ask Orbenyx AI..." autocomplete="off">
+            <button type="submit" id="ai-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+    </div>
+
     <!-- Chart.js and Custom Modules -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="index.js"></script>
     <script src="expenses.js"></script>
+    <script src="ai.js"></script>
 </body>
 </html>
